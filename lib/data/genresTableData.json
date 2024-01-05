@@ -1,0 +1,434 @@
+[
+	{
+		"genreId": 1,
+		"genreName": "漫画"
+	},
+	{
+		"genreId": 8,
+		"genreName": "小説"
+	},
+	{
+		"genreId": 12,
+		"genreName": "漫画"
+	},
+	{
+		"genreId": 15,
+		"genreName": "小説"
+	},
+	{
+		"genreId": 16,
+		"genreName": "小説"
+	},
+	{
+		"genreId": 17,
+		"genreName": "技術書"
+	},
+	{
+		"genreId": 18,
+		"genreName": "漫画"
+	},
+	{
+		"genreId": 19,
+		"genreName": "小説"
+	},
+	{
+		"genreId": 20,
+		"genreName": "小説"
+	},
+	{
+		"genreId": 21,
+		"genreName": "技術書"
+	},
+	{
+		"genreId": 22,
+		"genreName": ""
+	},
+	{
+		"genreId": 23,
+		"genreName": ""
+	},
+	{
+		"genreId": 24,
+		"genreName": ""
+	},
+	{
+		"genreId": 25,
+		"genreName": ""
+	},
+	{
+		"genreId": 26,
+		"genreName": ""
+	},
+	{
+		"genreId": 27,
+		"genreName": ""
+	},
+	{
+		"genreId": 28,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 29,
+		"genreName": "a"
+	},
+	{
+		"genreId": 30,
+		"genreName": "v"
+	},
+	{
+		"genreId": 31,
+		"genreName": "d"
+	},
+	{
+		"genreId": 32,
+		"genreName": "s"
+	},
+	{
+		"genreId": 33,
+		"genreName": "s"
+	},
+	{
+		"genreId": 34,
+		"genreName": "sd"
+	},
+	{
+		"genreId": 35,
+		"genreName": ""
+	},
+	{
+		"genreId": 36,
+		"genreName": ""
+	},
+	{
+		"genreId": 37,
+		"genreName": "aaaaaaaaaaaaaaaa"
+	},
+	{
+		"genreId": 38,
+		"genreName": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+	},
+	{
+		"genreId": 39,
+		"genreName": "v"
+	},
+	{
+		"genreId": 40,
+		"genreName": ""
+	},
+	{
+		"genreId": 41,
+		"genreName": ""
+	},
+	{
+		"genreId": 42,
+		"genreName": ""
+	},
+	{
+		"genreId": 43,
+		"genreName": ""
+	},
+	{
+		"genreId": 44,
+		"genreName": ""
+	},
+	{
+		"genreId": 45,
+		"genreName": ""
+	},
+	{
+		"genreId": 46,
+		"genreName": ""
+	},
+	{
+		"genreId": 47,
+		"genreName": ""
+	},
+	{
+		"genreId": 48,
+		"genreName": ""
+	},
+	{
+		"genreId": 49,
+		"genreName": ""
+	},
+	{
+		"genreId": 50,
+		"genreName": ""
+	},
+	{
+		"genreId": 51,
+		"genreName": ""
+	},
+	{
+		"genreId": 54,
+		"genreName": ""
+	},
+	{
+		"genreId": 55,
+		"genreName": ""
+	},
+	{
+		"genreId": 56,
+		"genreName": "小説"
+	},
+	{
+		"genreId": 57,
+		"genreName": "a"
+	},
+	{
+		"genreId": 58,
+		"genreName": "aa"
+	},
+	{
+		"genreId": 59,
+		"genreName": "sf"
+	},
+	{
+		"genreId": 60,
+		"genreName": "aa"
+	},
+	{
+		"genreId": 61,
+		"genreName": "a"
+	},
+	{
+		"genreId": 62,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 63,
+		"genreName": "ss"
+	},
+	{
+		"genreId": 64,
+		"genreName": "999"
+	},
+	{
+		"genreId": 65,
+		"genreName": "ss"
+	},
+	{
+		"genreId": 66,
+		"genreName": "tt4"
+	},
+	{
+		"genreId": 67,
+		"genreName": "s"
+	},
+	{
+		"genreId": 68,
+		"genreName": "g"
+	},
+	{
+		"genreId": 69,
+		"genreName": "b"
+	},
+	{
+		"genreId": 70,
+		"genreName": "d"
+	},
+	{
+		"genreId": 71,
+		"genreName": "s"
+	},
+	{
+		"genreId": 72,
+		"genreName": "b"
+	},
+	{
+		"genreId": 73,
+		"genreName": "fd"
+	},
+	{
+		"genreId": 74,
+		"genreName": "safdfsf"
+	},
+	{
+		"genreId": 75,
+		"genreName": "bb"
+	},
+	{
+		"genreId": 76,
+		"genreName": "ccc"
+	},
+	{
+		"genreId": 77,
+		"genreName": "5555"
+	},
+	{
+		"genreId": 78,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 79,
+		"genreName": "s"
+	},
+	{
+		"genreId": 80,
+		"genreName": "j"
+	},
+	{
+		"genreId": 81,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 82,
+		"genreName": "sdf"
+	},
+	{
+		"genreId": 83,
+		"genreName": "33"
+	},
+	{
+		"genreId": 84,
+		"genreName": "sf"
+	},
+	{
+		"genreId": 85,
+		"genreName": "gfgffg"
+	},
+	{
+		"genreId": 86,
+		"genreName": "ddd"
+	},
+	{
+		"genreId": 87,
+		"genreName": "gg"
+	},
+	{
+		"genreId": 88,
+		"genreName": "ddd"
+	},
+	{
+		"genreId": 89,
+		"genreName": "ll"
+	},
+	{
+		"genreId": 90,
+		"genreName": "ddd43"
+	},
+	{
+		"genreId": 91,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 92,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 93,
+		"genreName": "d"
+	},
+	{
+		"genreId": 94,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 95,
+		"genreName": "d"
+	},
+	{
+		"genreId": 96,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 97,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 98,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 99,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 100,
+		"genreName": "f"
+	},
+	{
+		"genreId": 101,
+		"genreName": "d"
+	},
+	{
+		"genreId": 102,
+		"genreName": "k"
+	},
+	{
+		"genreId": 103,
+		"genreName": "hh"
+	},
+	{
+		"genreId": 104,
+		"genreName": "s"
+	},
+	{
+		"genreId": 105,
+		"genreName": "ff"
+	},
+	{
+		"genreId": 106,
+		"genreName": "sfdsf"
+	},
+	{
+		"genreId": 107,
+		"genreName": "ff"
+	},
+	{
+		"genreId": 108,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 109,
+		"genreName": "dd"
+	},
+	{
+		"genreId": 110,
+		"genreName": "fgf"
+	},
+	{
+		"genreId": 111,
+		"genreName": "ffg"
+	},
+	{
+		"genreId": 112,
+		"genreName": "f"
+	},
+	{
+		"genreId": 113,
+		"genreName": "gfg"
+	},
+	{
+		"genreId": 114,
+		"genreName": "af"
+	},
+	{
+		"genreId": 115,
+		"genreName": "dfdf"
+	},
+	{
+		"genreId": 116,
+		"genreName": "33"
+	},
+	{
+		"genreId": 117,
+		"genreName": ""
+	},
+	{
+		"genreId": 118,
+		"genreName": ""
+	},
+	{
+		"genreId": 119,
+		"genreName": ""
+	},
+	{
+		"genreId": 120,
+		"genreName": "h6"
+	},
+	{
+		"genreId": 121,
+		"genreName": "4"
+	}
+]
