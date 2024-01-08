@@ -19,12 +19,14 @@ import javax.swing.table.DefaultTableModel;
 
 import controller.ActionList;
 import controller.Controller;
+import controller.MainFrameController;
 import window.sub.ManageBooks;
 
 public abstract class Window {
 	protected int todayProgress;
 	public Controller controller = new Controller();
 	public ActionList actionList;
+	public MainFrameController mfc;
 	
 	protected JFrame frame;
 	protected JPanel panel;

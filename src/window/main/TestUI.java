@@ -30,6 +30,7 @@ import javax.swing.table.TableCellRenderer;
 
 import controller.ActionList;
 import controller.Controller;
+import controller.MainFrameController;
 import window.Window;
 
 public class TestUI extends Window {
@@ -38,9 +39,9 @@ public class TestUI extends Window {
 	 * Create the frame.
 	 */
 	public TestUI(int userId, int previousBookId) {
-        /*
-         * JFrame
-         */
+		/*
+		 * JFrame
+		 */
 		frame = new JFrame();
 		frame.setTitle("Book MAP");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -53,7 +54,7 @@ public class TestUI extends Window {
 		Window testUI = this;
 		actionList = new ActionList(this);
 		controller = new Controller();
-
+		mfc = new MainFrameController();
 
 		/*
 		 * GridBagLayout
@@ -64,9 +65,9 @@ public class TestUI extends Window {
 		gbl_panel.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 };
 
-        /*
-         * JPanel
-         */
+		/*
+		 * JPanel
+		 */
 		panel = new JPanel();
 		panel.setBackground(new Color(250, 250, 250));
 		panel.setLayout(gbl_panel);
@@ -157,16 +158,16 @@ public class TestUI extends Window {
 		progressModel.addColumn("日付");
 		progressModel.addColumn("日付");
 		progressModel.addColumn("ID");
-		progressModel = controller.reloadProgressModel(progressModel, userId, bookId);
+		progressModel = mfc.reloadProgressModel(progressModel);
 		progressDataTable = new JTable(progressModel) {
 			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
 				Component toolTip = super.prepareRenderer(renderer, row, column);
-				controller.setDateTooltip(progressModel, toolTip, row, column);
+				// controller.setDateTooltip(progressModel, toolTip, row, column);
 				return toolTip;
 			}
 		};
-		progressDataTable = controller.progressDataTableSettings(progressDataTable);
+		progressDataTable = mfc.progressDataTableSettings(progressDataTable);
 
 		scrollPane = new JScrollPane(progressDataTable);
 		scrollPane.setPreferredSize(new Dimension(150, 140));
@@ -252,10 +253,10 @@ public class TestUI extends Window {
 					return;
 				} else {
 					todayProgress = Integer.valueOf(inputTodayPages.getText());
-					controller.addRecentData(userId, bookId, todayProgress);
+					mfc.addRecentData(userId, bookId, todayProgress);
 					inputTodayPages.setText(null);
 				}
-				updateText(userId, bookId);
+				mfc.reloadProgressModel(progressModel);
 			}
 
 		});
@@ -296,19 +297,18 @@ public class TestUI extends Window {
 				int selectedRow = progressDataTable.getSelectedRow();
 				if (selectedRow != -1) {
 
-					// 選択された行とそのbook_idを特定
-					int modelRow = progressDataTable.convertRowIndexToModel(selectedRow);
-					int progressId = Integer.parseInt(progressModel.getValueAt(modelRow, 3).toString());
+					// 選択された行からcreatedAtを取得
+					long createdAt = (long)progressDataTable.getValueAt(selectedRow, 2);
 
 					// 本当に削除しますか？のポップアップ
 					int userAnswer = JOptionPane.showConfirmDialog(null,
 							"選択された進捗データを本当に削除しますか？", "注意", JOptionPane.YES_NO_OPTION,
 							JOptionPane.WARNING_MESSAGE);
 					if (userAnswer == JOptionPane.YES_OPTION) {
-						controller.deleteSelectedData(userId, progressId);
-						updateText(userId, bookId);
-
+						mfc.deleteSelectedData(createdAt);
 					}
+					mfc.reloadProgressModel(progressModel);
+					panel.repaint();
 				}
 			}
 		});
@@ -321,7 +321,7 @@ public class TestUI extends Window {
 		gbc_deleteButton.gridx = 3;
 		gbc_deleteButton.gridy = 5;
 		panel.add(deleteButton, gbc_deleteButton);
-		
+
 		Font mainFont = new Font("メイリオ", Font.PLAIN, 12);
 		controller.changeFont(panel, mainFont);
 
@@ -338,7 +338,7 @@ public class TestUI extends Window {
 	public void adjustableFontSize(int userId, int bookId) {
 		String title = controller.setBookTitle(userId, bookId);
 		bookTitleLabel.setText(title);
-		
+
 		int variable = title.length() / 10;
 		if (variable == 0) {
 			bookTitleLabel.setFont(new Font("メイリオ", Font.PLAIN, 30));

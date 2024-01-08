@@ -95,7 +95,7 @@ public class ProgressDAO {
             rs = ps.executeQuery();
             while (rs.next()) {
                 Timestamp createdAt = rs.getTimestamp("created_at");
-                
+
                 DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy MM/dd");
                 LocalDate date = createdAt.toLocalDateTime().toLocalDate();
 
@@ -103,7 +103,7 @@ public class ProgressDAO {
                 String progressPages = String.valueOf(rs.getInt("today_progress")) + "P";
                 String formattedDate = date.format(dateFormat);
                 String differenceDate = getDifference(createdAt);
-                progressData.add(new String[] { progressPages, differenceDate, formattedDate, progressId});
+                progressData.add(new String[] { progressPages, differenceDate, formattedDate, progressId });
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,40 +111,40 @@ public class ProgressDAO {
         disconnect();
         return progressData;
     }
-    
+
     public String getDifference(Timestamp createdAt) {
-    	LocalDate today = LocalDate.now();
-    	
-    	//timestamp型をLocalDateTime型にし、さらにそれをLocalDate型に変換
+        LocalDate today = LocalDate.now();
+
+        // timestamp型をLocalDateTime型にし、さらにそれをLocalDate型に変換
         LocalDate pastDate = createdAt.toLocalDateTime().toLocalDate();
-        
+
         int diffDays = today.getDayOfYear() - pastDate.getDayOfYear();
         int diffYears = today.getYear() - pastDate.getYear();
         if (diffYears > 0) {
-        	diffDays += 365*diffYears;
+            diffDays += 365 * diffYears;
         }
         if (diffDays == 0) {
-        	return String.format("今日");
-        	
-        } else if (diffDays == 1){
-        	return String.format("昨日");
-        	
-        } else if (diffDays == 2){
-        	return String.format("一昨日");
-        	
+            return String.format("今日");
+
+        } else if (diffDays == 1) {
+            return String.format("昨日");
+
+        } else if (diffDays == 2) {
+            return String.format("一昨日");
+
         } else if (diffDays <= 6) {
-            return  String.format("%d日前", diffDays);
-            
+            return String.format("%d日前", diffDays);
+
         } else if (diffDays <= 30) {
             return String.format("%d週間前", diffDays / 7);
-            
+
         } else if (diffDays <= 365) {
             return String.format("%dか月前", diffDays / 30);
-            
+
         } else {
             return String.format("%d年前", diffDays / 365);
         }
-     }
+    }
 
     /*
      * 読んだ合計のページ数
