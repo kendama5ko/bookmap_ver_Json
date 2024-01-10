@@ -49,10 +49,12 @@ public abstract class Window {
 	protected int userId;
 	protected int bookId;
 	protected List<String> bookList;
+	protected String bookTitle;
 	protected ManageBooks mBooks;
 	protected JTextField inputRed;
 	protected JTextField inputGreen;
 	protected JTextField inputBlue;
+
 	public JComboBox<String> getBookShelfCombo() {
 		return bookShelfCombo;
 	}
@@ -65,7 +67,7 @@ public abstract class Window {
 
 	abstract protected void stop();
 
-	abstract public void updateText(int userId, int bookId);
+	abstract public void updateText(int userId, int bookId, String bookTitle);
 
 	public void allowOnlyNumbers(Component component) {
 

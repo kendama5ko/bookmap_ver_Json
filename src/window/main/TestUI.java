@@ -50,6 +50,7 @@ public class TestUI extends Window {
 		Container getP = frame.getContentPane();
 		this.userId = userId;
 		this.bookId = previousBookId;
+		this.bookTitle = "本のタイトル1";
 
 		Window testUI = this;
 		actionList = new ActionList(this);
@@ -77,7 +78,7 @@ public class TestUI extends Window {
 		 */
 		bookTitleLabel = new JLabel();
 		bookTitleLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		adjustableFontSize(userId, bookId);
+		adjustableFontSize(bookTitle);
 		bookTitleLabel.setForeground(new Color(40, 40, 40));
 
 		GridBagConstraints gbc_bookTitleLabel = new GridBagConstraints();
@@ -113,7 +114,7 @@ public class TestUI extends Window {
 		gbc_bookListButton.gridy = 0;
 		panel.add(bookListButton, gbc_bookListButton);
 
-		comboModel = controller.setBookList(userId);
+		comboModel = mfc.setBookList();
 		bookShelfCombo = new JComboBox<>(comboModel);
 		bookShelfCombo.setForeground(new Color(40, 40, 40));
 		bookShelfCombo.setBackground(new Color(250, 250, 255));
@@ -123,9 +124,10 @@ public class TestUI extends Window {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String bookTitle = String.valueOf(bookShelfCombo.getSelectedItem());
-				bookId = controller.getBookId(userId, bookTitle);
-				updateText(userId, bookId);
+				bookTitle = String.valueOf(bookShelfCombo.getSelectedItem());
+				// bookId = controller.getBookId(userId, bookTitle);
+				updateText(userId, bookId, bookTitle);
+
 			}
 		});
 		GridBagConstraints gbc_bookShelfCombo = new GridBagConstraints();
@@ -137,7 +139,7 @@ public class TestUI extends Window {
 		gbc_bookShelfCombo.gridy = 0;
 		panel.add(bookShelfCombo, gbc_bookShelfCombo);
 
-		remainPagesLabel = new JLabel(controller.setRemainPageLabel(userId, bookId));
+		remainPagesLabel = new JLabel(mfc.setRemainPageLabel(bookTitle));
 		remainPagesLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		remainPagesLabel.setBackground(new Color(235, 245, 255));
 		remainPagesLabel.setOpaque(true);
@@ -211,7 +213,7 @@ public class TestUI extends Window {
 		gbc_progressBar.gridy = 2;
 		panel.add(progressBar, gbc_progressBar);
 
-		avgPAnsLabel = new JLabel(controller.setAvgPagesLabel(userId, bookId));
+		avgPAnsLabel = new JLabel(mfc.setRemainPageLabel(bookTitle));
 		avgPAnsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		avgPAnsLabel.setForeground(new Color(40, 40, 40));
 		avgPAnsLabel.setFont(new Font("メイリオ", Font.PLAIN, 20));
@@ -273,7 +275,7 @@ public class TestUI extends Window {
 		gbc_inputButton.gridy = 4;
 		panel.add(inputButton, gbc_inputButton);
 
-		sumDaysAnsLabel = new JLabel("Total Days  " + controller.sumDays(userId, bookId) + "days");
+		sumDaysAnsLabel = new JLabel("Total Days  " + mfc.getTotalDays(bookTitle) + "days");
 		sumDaysAnsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		sumDaysAnsLabel.setForeground(new Color(40, 40, 40));
 		sumDaysAnsLabel.setFont(new Font("メイリオ", Font.PLAIN, 20));
@@ -335,11 +337,12 @@ public class TestUI extends Window {
 		this.frame.setVisible(false);
 	}
 
-	public void adjustableFontSize(int userId, int bookId) {
-		String title = controller.setBookTitle(userId, bookId);
-		bookTitleLabel.setText(title);
-
-		int variable = title.length() / 10;
+	public void adjustableFontSize(String bookTitle) {
+		bookTitleLabel.setText(bookTitle);
+		if (bookTitle == null) {
+			return;
+		}
+		int variable = bookTitle.length() / 10;
 		if (variable == 0) {
 			bookTitleLabel.setFont(new Font("メイリオ", Font.PLAIN, 30));
 		} else {
@@ -370,12 +373,12 @@ public class TestUI extends Window {
 		actionList.setBackGroundColor(BackGroundComponents, red, green, blue);
 	}
 
-	public void updateText(int userId, int bookId) {
-		adjustableFontSize(userId, bookId);
-		remainPagesLabel.setText(controller.setRemainPageLabel(userId, bookId));
-		avgPAnsLabel.setText(controller.setAvgPagesLabel(userId, bookId));
-		sumDaysAnsLabel.setText("Total Days  " + controller.sumDays(userId, bookId) + "days");
-		progressModel = controller.reloadProgressModel(progressModel, userId, bookId);
+	public void updateText(int userId, int bookId, String booktitle) {
+		adjustableFontSize(bookTitle);
+		remainPagesLabel.setText(mfc.setRemainPageLabel(bookTitle));
+		avgPAnsLabel.setText(mfc.setAvgPagesLabel(bookTitle));
+		sumDaysAnsLabel.setText("Total Days  " + mfc.getTotalDays(bookTitle) + "days");
+		progressModel = mfc.reloadProgressModel(progressModel);
 		progressBar.setValue(controller.setProgress(userId, bookId));
 		progressLabel.setText(controller.setProgressLabel(userId, bookId));
 		panel.repaint();

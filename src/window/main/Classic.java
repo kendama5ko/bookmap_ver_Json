@@ -111,7 +111,7 @@ public class Classic extends Window {
          */
         this.logoButton = new JButton("LOGO");
         logoButton.addActionListener(e -> {
-            updateText(userId, bookId);
+            updateText(userId, bookId, bookTitle);
         });
         gbc.fill = GridBagConstraints.NONE;
         gridValue(0, 0, 1, 1);
@@ -221,7 +221,7 @@ public class Classic extends Window {
             @Override
             public void actionPerformed(ActionEvent e) {
                 showC.deleteRecentData(userId, bookId);
-                updateText(userId, bookId);
+                updateText(userId, bookId, bookTitle);
             }
         });
         gbc.anchor = GridBagConstraints.NORTH;
@@ -288,7 +288,7 @@ public class Classic extends Window {
                     todayProgress = Integer.valueOf(inputTodayPages.getText());
                     showC.addRecentData(userId, bookId, todayProgress);
                 }
-                updateText(userId, bookId);
+                updateText(userId, bookId, bookTitle);
             }
 
         });
@@ -356,7 +356,7 @@ public class Classic extends Window {
                 String bookTitle;
                 bookTitle = String.valueOf(bookShelfCombo.getSelectedItem());
                 bookId = showC.getBookId(userId, bookTitle);
-                updateText(userId, bookId);
+                updateText(userId, bookId, bookTitle);
             }
         });
         gridValue(2, 0, 2, 1);
@@ -454,7 +454,7 @@ public class Classic extends Window {
     }
 
     @Override
-    public void updateText(int userId, int bookId) {
+    public void updateText(int userId, int bookId, String bookTitle) {
         bookTitleLabel.setText(showC.getBookTitle(userId, bookId));
         sumDaysAnsLabel.setText(showC.sumDays(userId, bookId) + "日");
         rPAnsLabel.setText(showC.remainPages(userId, bookId) + "P");

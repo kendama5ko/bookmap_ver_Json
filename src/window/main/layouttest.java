@@ -161,7 +161,7 @@ public class layouttest extends Window {
                 String bookTitle;
                 bookTitle = String.valueOf(bookShelfCombo.getSelectedItem());
                 bookId = showC.getBookId(userId, bookTitle);
-                updateText(userId, bookId);
+                updateText(userId, bookId, bookTitle);
             }
         });
 		panel.add(bookShelfCombo);
@@ -226,7 +226,7 @@ public class layouttest extends Window {
         this.frame.setVisible(true);
     }
 
-    public void updateText(int userId, int bookId) {
+    public void updateText(int userId, int bookId, String booktitle) {
         bookTitleLabel.setText(showC.getBookTitle(userId, bookId));
         sumDaysAnsLabel.setText(showC.sumDays(userId, bookId) + "日");
         rPAnsLabel.setText(showC.remainPages(userId, bookId) + "P / " + showC.totalPages(bookId) + "P");

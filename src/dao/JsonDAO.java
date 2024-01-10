@@ -6,6 +6,8 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -20,11 +22,13 @@ public class JsonDAO {
     private ObjectMapper mapper;
     private JsonNode node;
     ObjectWriter prettyPrint;
+    JsonNode bookShelfNode;
+    JsonNode progressDataNode = null;
+    ArrayNode arrayProgressDataNode;
 
     public JsonDAO() {
-        this.mapper = new ObjectMapper();
         this.dataFile = Paths.get("lib/data/testData.json").toFile();
-
+        this.mapper = new ObjectMapper();
         // 更新されたJSONデータを整形してファイルに書き込む
         prettyPrint = mapper.writerWithDefaultPrettyPrinter();
         try {
@@ -32,6 +36,8 @@ public class JsonDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        this.bookShelfNode = node.get("本棚");
     }
 
     public void writeToJsonFile(JsonNode node) {
@@ -41,6 +47,16 @@ public class JsonDAO {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public List<String> searchBookList() {
+        List<String> bookTitles = new ArrayList<>();
+
+        for (JsonNode bsNode : bookShelfNode) {
+            String bookTitle = bsNode.get("タイトル").asText();
+            bookTitles.add(bookTitle);
+        }
+        return bookTitles;
     }
 
     public DefaultTableModel setDataFromJson(DefaultTableModel progressModel) {
@@ -64,32 +80,70 @@ public class JsonDAO {
     }
 
     public void addProgressData(String currentDate, int totalPages, String createdAt) {
-        ArrayNode progressDataNode = (ArrayNode) node.get("本棚").get(0).get("進捗データ");
-        
+        arrayProgressDataNode = (ArrayNode) node.get("本棚").get(0).get("進捗データ");
+
         ObjectNode newProgressNode = mapper.createObjectNode();
         newProgressNode.put("日付", currentDate);
         newProgressNode.put("読んだページ数", totalPages);
         newProgressNode.put("created_at", createdAt);
-        progressDataNode.add(newProgressNode);
+        arrayProgressDataNode.add(newProgressNode);
 
         writeToJsonFile(node);
     }
 
     public void deleteProgressData(long createdAt) {
         // 進捗データから選択した行を削除
-        ArrayNode progressDataNode = (ArrayNode) node.get("本棚").get(0).get("進捗データ");
+        arrayProgressDataNode = (ArrayNode) node.get("本棚").get(0).get("進捗データ");
 
-        for (int i = 0; i < progressDataNode.size(); i++) {
-            JsonNode progressNode = progressDataNode.get(i);
+        for (int i = 0; i < arrayProgressDataNode.size(); i++) {
+            JsonNode progressNode = arrayProgressDataNode.get(i);
             String createdAtString = progressNode.get("created_at").asText();
             Instant createdAtInstant = Instant.parse(createdAtString);
-            long columnValue = createdAtInstant.toEpochMilli();
+            long originalCreatedAt = createdAtInstant.toEpochMilli();
 
-            if (columnValue == createdAt) {
-                progressDataNode.remove(i);
+            if (originalCreatedAt == createdAt) {
+                arrayProgressDataNode.remove(i);
                 break; // 行が見つかったらループを抜ける
             }
         }
         writeToJsonFile(node);
+    }
+
+    public JsonNode getProgressDataNode(String bookTitle) {
+        progressDataNode = bookShelfNode;
+        for (JsonNode bookNode : bookShelfNode) {
+            if (bookNode.get("タイトル").asText().equals(bookTitle)) {
+                progressDataNode = bookNode.get("進捗データ");
+            }
+        }
+        return progressDataNode;
+    }
+
+    public int getCurrentPages(String bookTitle) {
+        int currentPages = 0;
+        progressDataNode = getProgressDataNode(bookTitle);
+        for (JsonNode data : progressDataNode) {
+            currentPages += data.get("読んだページ数").asInt();
+        }
+        return currentPages;
+    }
+
+    public int getTotalPages(String bookTitle) {
+        int totalPages = 0;
+        for (JsonNode book : bookShelfNode) {
+            if (book.get("タイトル").asText().equals(bookTitle)) {
+                totalPages = book.get("総ページ数").asInt();
+            }
+        }
+        return totalPages;
+    }
+
+    public List<String> getDates(String bookTitle) {
+        List<String> dates = new ArrayList<>();
+        progressDataNode = getProgressDataNode(bookTitle);
+        for (JsonNode date : progressDataNode) {
+            dates.add(date.get("日付").asText());
+        }
+        return dates;
     }
 }
