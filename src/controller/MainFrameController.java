@@ -1,16 +1,27 @@
 package controller;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
+import java.awt.Font;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Map;
 import java.util.List;
+import java.util.Properties;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
@@ -25,6 +36,7 @@ import dao.JsonDAO;
 
 public class MainFrameController {
 
+    Properties properties;
     File dataFile;
     ObjectMapper mapper;
     JsonNode node;
@@ -36,27 +48,47 @@ public class MainFrameController {
         this.dataFile = Paths.get("lib/data/testData.json").toFile();
         this.mapper = new ObjectMapper();
         this.jdao = new JsonDAO();
+        this.properties = new Properties();
     }
 
     public DefaultComboBoxModel<String> setBookList() {
         comboModel = new DefaultComboBoxModel<>();
-        bookList = new ArrayList<String>();
-
-        bookList = jdao.searchBookList();
-		for (String bList : this.bookList) {
-			comboModel.addElement(bList);
-		}
+        List<Map<String, String>> bookInfoList = new ArrayList<>();
+        bookInfoList = jdao.searchBookList();
+        for (Map<String, String>  bookInfo : bookInfoList) {
+            comboModel.addElement(bookInfo.get("タイトル"));
+        }
         // int newIndexStart = 0; // 新しい要素の最初のインデックス
-		// int newIndexEnd = bookList.size() - 1; // 新しい要素の最後のインデックス
+        // int newIndexEnd = bookList.size() - 1; // 新しい要素の最後のインデックス
 
-		// // fireIntervalAdded を呼び出して変更を通知
-		// fireIntervalAdded(this, newIndexStart, newIndexEnd);
-		return comboModel;
+        // // fireIntervalAdded を呼び出して変更を通知
+        // fireIntervalAdded(this, newIndexStart, newIndexEnd);
+        return comboModel;
     }
 
-    public DefaultTableModel reloadProgressModel(DefaultTableModel progressModel) {
+    public String getLastBook() {
+        try {
+            properties.load(new InputStreamReader(new FileInputStream("src/bookmap.properties"), "UTF-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String lastBook = properties.getProperty("lastBook");
+        return lastBook;
+    }
+
+    public void setlastBook(String bookTitle) {
+        properties.setProperty("lastBook", bookTitle);
+        try {
+            properties.store(new OutputStreamWriter(new FileOutputStream("src/bookmap.properties"), "UTF-8"), null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public DefaultTableModel reloadProgressModel(String bookTitle, DefaultTableModel progressModel) {
         progressModel.setRowCount(0);
-        jdao.setDataFromJson(progressModel);
+        jdao.setDataFromJson(bookTitle, progressModel);
 
         // timestampで降順にソート
         Collections.sort(progressModel.getDataVector(), (o1, o2) -> {
@@ -102,7 +134,7 @@ public class MainFrameController {
         return progressDataTable;
     }
 
-    public void addRecentData(int userId, int bookId, int totalPages) {
+    public void addRecentData(String bookTitle, int userId, int bookId, int totalPages) {
         // 現在時刻を取得
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy MM/dd");
         DateTimeFormatter ISO8601 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
@@ -111,11 +143,11 @@ public class MainFrameController {
         String currentDate = ZonedDateTime.now(ZoneId.of("Asia/Tokyo")).format(dateFormat);
 
         // 進捗データを追加
-        jdao.addProgressData(currentDate, totalPages, createdAt);
+        jdao.addProgressData(bookTitle, currentDate, totalPages, createdAt);
     }
 
-    public void deleteSelectedData(long createdAt) {
-        jdao.deleteProgressData(createdAt);
+    public void deleteSelectedData(String bookTitle, long createdAt) {
+        jdao.deleteProgressData(bookTitle, createdAt);
     }
 
     /*
@@ -126,9 +158,9 @@ public class MainFrameController {
         int totalPages = jdao.getTotalPages(bookTitle);
 
         if (currentPages > totalPages) {
-			return "Finish!!";
-		}
-        return " " + currentPages + "P / "	+ totalPages + "P";
+            return "Finish!!";
+        }
+        return " " + currentPages + "P / " + totalPages + "P";
     }
 
     public int getTotalDays(String bookTitle) {
@@ -152,8 +184,39 @@ public class MainFrameController {
         if (totalDays <= 0) {
             return "0P / day";
         } else {
-            int avgPages = currentPages/ totalDays;
+            int avgPages = currentPages / totalDays;
             return String.valueOf(avgPages) + "P / day";
+        }
+    }
+
+    public int setProgress(String bookTitle) {
+        int currentPages = jdao.getCurrentPages(bookTitle);
+        int totalPages = jdao.getTotalPages(bookTitle);
+
+        if (totalPages == 0) {
+            return 0;
+        } else if (currentPages > totalPages) {
+            return 100;
+        } else {
+            return (currentPages * 100) / totalPages;// 現在の達成率
+        }
+    }
+
+    public String setProgressLabel(String bookTitle) {
+        return setProgress(bookTitle) + "％";
+    }
+
+    public void changeFont(JComponent component, Font font) {
+        if (component instanceof JComponent && !(component instanceof JLabel)) {
+            component.setFont(font);
+        }
+
+        if (component instanceof Container) {
+            for (Component child : ((Container) component).getComponents()) {
+                if (child instanceof JComponent) {
+                    changeFont((JComponent) child, font);
+                }
+            }
         }
     }
 }

@@ -15,7 +15,6 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import controller.PasswordEncoder;
-import window.main.Classic;
 import window.main.TestUI;
 
 public class LoginForm {
@@ -29,7 +28,6 @@ public class LoginForm {
     private JPanel loginPanel;
     private JButton rootLoginButton;
     private JButton subscribeButton;
-    Classic classic;
     private int[] userData = new int[2];
     private int userId;
     private int previousBookId;

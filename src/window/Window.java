@@ -67,7 +67,7 @@ public abstract class Window {
 
 	abstract protected void stop();
 
-	abstract public void updateText(int userId, int bookId, String bookTitle);
+	abstract public void updateText(String bookTitle);
 
 	public void allowOnlyNumbers(Component component) {
 

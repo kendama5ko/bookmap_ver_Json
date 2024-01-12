@@ -5,31 +5,49 @@ import java.awt.Container;
 import java.awt.FocusTraversalPolicy;
 import java.awt.Font;
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.event.TableModelEvent;
+import javax.swing.table.DefaultTableModel;
 
 import dao.BookShelfDAO;
 import dao.BooksDAO;
+import dao.JsonDAO;
 import window.sub.ManageBooks;
 
 public class ManageBooksController  {
 	ManageBooks mBooks;
 	BooksDAO bdao;
 	BookShelfDAO bsdao;
+	JsonDAO jdao;
+	List<Map<String, String>> bookInfoList;
 	
 	public ManageBooksController(ManageBooks mBooks) {
 		this.mBooks = mBooks;
+		this.jdao = new JsonDAO();
 	}
 
-	 /*
+	/*
      * BookShelfのTableModelの受け取り
      */
-    public List<String[]> getBookShelfList(int userId) {
-        bsdao = new BookShelfDAO();
-        return bsdao.createManageBooksList(userId);
-    }
+    public DefaultTableModel getBookShelfModel(DefaultTableModel model) {
+		bookInfoList = new ArrayList<>();
+		bookInfoList = jdao.searchBookList();
+		for (Map<String, String> bookInfo : bookInfoList) {
+			model.addRow(new Object[]{
+				bookInfo.get("タイトル"),
+				bookInfo.get("著者"),
+				bookInfo.get("ジャンル"),
+				bookInfo.get("総ページ数"),
+				bookInfo.get("UUID")
+				
+			});
+		}
+		return model;
+	}
     /*
      * 本棚に本を追加
      */

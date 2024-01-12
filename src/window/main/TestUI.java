@@ -13,7 +13,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.List;
-
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -29,7 +30,6 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
 import controller.ActionList;
-import controller.Controller;
 import controller.MainFrameController;
 import window.Window;
 
@@ -46,16 +46,22 @@ public class TestUI extends Window {
 		frame.setTitle("Book MAP");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setBounds(1000, 200, 714, 381);
+		frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                // ウィンドウが閉じるときに実行したいメソッドを呼び出す
+                mfc.setlastBook(bookTitle);
+            }
+        });
+
 
 		Container getP = frame.getContentPane();
-		this.userId = userId;
-		this.bookId = previousBookId;
-		this.bookTitle = "本のタイトル1";
-
+		
 		Window testUI = this;
 		actionList = new ActionList(this);
-		controller = new Controller();
 		mfc = new MainFrameController();
+		bookTitle = mfc.getLastBook();
+		System.out.println(bookTitle);
 
 		/*
 		 * GridBagLayout
@@ -125,9 +131,7 @@ public class TestUI extends Window {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				bookTitle = String.valueOf(bookShelfCombo.getSelectedItem());
-				// bookId = controller.getBookId(userId, bookTitle);
-				updateText(userId, bookId, bookTitle);
-
+				updateText(bookTitle);
 			}
 		});
 		GridBagConstraints gbc_bookShelfCombo = new GridBagConstraints();
@@ -160,7 +164,7 @@ public class TestUI extends Window {
 		progressModel.addColumn("日付");
 		progressModel.addColumn("日付");
 		progressModel.addColumn("ID");
-		progressModel = mfc.reloadProgressModel(progressModel);
+		progressModel = mfc.reloadProgressModel(bookTitle, progressModel);
 		progressDataTable = new JTable(progressModel) {
 			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -185,7 +189,7 @@ public class TestUI extends Window {
 		gbc_scrollPane_1.gridy = 2;
 		panel.add(scrollPane, gbc_scrollPane_1);
 
-		progressLabel = new JLabel(controller.setProgressLabel(userId, bookId));
+		progressLabel = new JLabel(mfc.setProgressLabel(bookTitle));
 		progressLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		progressLabel.setFont(new Font("メイリオ", Font.PLAIN, 34));
 		progressLabel.setForeground(new Color(40, 40, 40));
@@ -199,7 +203,7 @@ public class TestUI extends Window {
 		panel.add(progressLabel, gbc_progressLabel);
 
 		progressBar = new JProgressBar(JProgressBar.VERTICAL, 0, 100);
-		progressBar.setValue(controller.setProgress(userId, bookId));
+		progressBar.setValue(mfc.setProgress(bookTitle));
 		progressBar.setBackground(new Color(250, 250, 255));
 		progressBar.setForeground(new Color(40, 150, 243));
 		progressBar.setFont(new Font("MS UI Gothic", Font.PLAIN, 36));
@@ -255,10 +259,11 @@ public class TestUI extends Window {
 					return;
 				} else {
 					todayProgress = Integer.valueOf(inputTodayPages.getText());
-					mfc.addRecentData(userId, bookId, todayProgress);
+					mfc.addRecentData(bookTitle, userId, bookId, todayProgress);
 					inputTodayPages.setText(null);
 				}
-				mfc.reloadProgressModel(progressModel);
+				mfc.reloadProgressModel(bookTitle, progressModel);
+				updateText(bookTitle);
 			}
 
 		});
@@ -307,10 +312,10 @@ public class TestUI extends Window {
 							"選択された進捗データを本当に削除しますか？", "注意", JOptionPane.YES_NO_OPTION,
 							JOptionPane.WARNING_MESSAGE);
 					if (userAnswer == JOptionPane.YES_OPTION) {
-						mfc.deleteSelectedData(createdAt);
+						mfc.deleteSelectedData(bookTitle, createdAt);
 					}
-					mfc.reloadProgressModel(progressModel);
-					panel.repaint();
+					mfc.reloadProgressModel(bookTitle, progressModel);
+					updateText(bookTitle);
 				}
 			}
 		});
@@ -325,7 +330,7 @@ public class TestUI extends Window {
 		panel.add(deleteButton, gbc_deleteButton);
 
 		Font mainFont = new Font("メイリオ", Font.PLAIN, 12);
-		controller.changeFont(panel, mainFont);
+		mfc.changeFont(panel, mainFont);
 
 	}
 
@@ -373,14 +378,14 @@ public class TestUI extends Window {
 		actionList.setBackGroundColor(BackGroundComponents, red, green, blue);
 	}
 
-	public void updateText(int userId, int bookId, String booktitle) {
+	public void updateText(String bookTitle) {
 		adjustableFontSize(bookTitle);
 		remainPagesLabel.setText(mfc.setRemainPageLabel(bookTitle));
 		avgPAnsLabel.setText(mfc.setAvgPagesLabel(bookTitle));
 		sumDaysAnsLabel.setText("Total Days  " + mfc.getTotalDays(bookTitle) + "days");
-		progressModel = mfc.reloadProgressModel(progressModel);
-		progressBar.setValue(controller.setProgress(userId, bookId));
-		progressLabel.setText(controller.setProgressLabel(userId, bookId));
+		progressModel = mfc.reloadProgressModel(bookTitle, progressModel);
+		progressBar.setValue(mfc.setProgress(bookTitle));
+		progressLabel.setText(mfc.setProgressLabel(bookTitle));
 		panel.repaint();
 
 	}

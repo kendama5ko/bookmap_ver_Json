@@ -12,6 +12,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -36,9 +37,9 @@ import window.Window;
 public class ManageBooks {
 	private Window window;
 	private final JFrame manageFrame;
-	private final DefaultTableModel booksModel;
+	private DefaultTableModel booksModel;
 
-	private final DefaultTableModel copyOfBooksModel;
+	private DefaultTableModel copyOfBooksModel;
 	private final JScrollPane booksScrollPane;
 	private final JTable bookListTable;
 	//private final JTable copyOfBookListTable;
@@ -59,6 +60,7 @@ public class ManageBooks {
 	private String addGenre;
 	private int addTotalPages;
 	private String updatedMessage;
+	List<Map<String, String>> bookInfoList;
 	LabelTimer labelTimer;
 	Timer timer;
 	int sec = 0;
@@ -90,12 +92,9 @@ public class ManageBooks {
 		addColumn(booksModel);
 		addColumn(copyOfBooksModel);
 
-		List<String[]> booksData = new ArrayList<>();
-		booksData = mbController.getBookShelfList(userId);
-		for (String[] bd : booksData) {
-			booksModel.addRow(bd);
-			copyOfBooksModel.addRow(bd);
-		}
+		booksModel = mbController.getBookShelfModel(booksModel);
+		copyOfBooksModel = mbController.getBookShelfModel(copyOfBooksModel);
+
 
 		// ModelをTableに入れる
 		bookListTable = new JTable(booksModel);
@@ -323,11 +322,12 @@ public class ManageBooks {
 		booksModel.setRowCount(0);
 		copyOfBooksModel.setRowCount(0);
 		List<String[]> booksData = new ArrayList<>();
-		booksData = mbController.getBookShelfList(userId);
-		for (String[] bd : booksData) {
-			booksModel.addRow(bd);
-			copyOfBooksModel.addRow(bd);
-		}
+		booksModel = mbController.getBookShelfModel(booksModel);
+		copyOfBooksModel = mbController.getBookShelfModel(copyOfBooksModel);
+		// for (String[] bd : booksData) {
+		// 	booksModel.addRow(bd);
+		// 	copyOfBooksModel.addRow(bd);
+		// }
 	}
 
 	public void tableSettings(JTable table) {
@@ -364,7 +364,7 @@ public class ManageBooks {
 		model.addColumn("著者");
 		model.addColumn("ジャンル");
 		model.addColumn("ページ数");
-		model.addColumn("book_id");
+		model.addColumn("UUID");
 	}
 
 	public boolean numberVaridator(String totalPagesText) {
