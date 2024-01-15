@@ -20,7 +20,7 @@ public class ActionList {
 		this.window = window;
 	}
 
-	public void bookListButtonAction(int userId, Window window) {
+	public void ManageBookButtonAction(int userId, Window window) {
 		if (mBooks == null) {
 			mBooks = new ManageBooks(userId, window);
 		}

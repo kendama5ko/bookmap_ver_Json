@@ -58,9 +58,9 @@ public class ManageBooks {
 	private String addTitle;
 	private String addAuthor;
 	private String addGenre;
-	private int addTotalPages;
+	private String addTotalPages;
 	private String updatedMessage;
-	List<Map<String, String>> bookInfoList;
+	List<String> bookInfoList;
 	LabelTimer labelTimer;
 	Timer timer;
 	int sec = 0;
@@ -136,14 +136,19 @@ public class ManageBooks {
 				addTitle = inputTitle.getText();
 				addAuthor = inputAuthor.getText();
 				addGenre = inputGenre.getText();
-				String totalPagesText = inputTotalPages.getText();
-				if (numberVaridator(totalPagesText)) {
+				addTotalPages = inputTotalPages.getText();
+				bookInfoList = new ArrayList<>();
+				bookInfoList.add(addTitle);
+				bookInfoList.add(addAuthor);
+				bookInfoList.add(addGenre);
+				bookInfoList.add(addTotalPages);
+
+				if (numberVaridator(addTotalPages)) {
 					try {
-						addTotalPages = Integer.parseInt(totalPagesText);
-						String result = mbController.addBook(userId, addTitle, addAuthor, addGenre, addTotalPages);
+						String result = mbController.addBook(bookInfoList);
 						System.out.println(result);
 						clearText(bPanel);
-						window.updateBookShlefCombo();
+						//window.updateBookShlefCombo();
 
 					} catch (NumberFormatException ne) {
 						ne.printStackTrace();
@@ -168,7 +173,7 @@ public class ManageBooks {
 
 					// 選択された行とそのbook_idを特定
 					int modelRow = bookListTable.convertRowIndexToModel(selectedRow);
-					int bookId = Integer.parseInt(booksModel.getValueAt(modelRow, 4).toString());
+					//int bookId = Integer.parseInt(booksModel.getValueAt(modelRow, 4).toString());
 					String bookTitle = booksModel.getValueAt(modelRow, 0).toString();
 
 					// 本当に削除しますか？のポップアップ
@@ -176,7 +181,7 @@ public class ManageBooks {
 							"「 " + bookTitle + " 」の進捗データは失われます。本当に削除しますか？", "注意", JOptionPane.YES_NO_OPTION,
 							JOptionPane.WARNING_MESSAGE);
 					if (userAnswer == JOptionPane.YES_OPTION) {
-						mbController.deleteBookByTable(userId, bookId);
+						mbController.deleteBookByTable(bookTitle);
 						updateFrame(userId);
 						window.updateBookShlefCombo(modelRow);
 					} else if (userAnswer == JOptionPane.NO_OPTION) {
@@ -321,7 +326,6 @@ public class ManageBooks {
 	public void updateFrame(int userId) {
 		booksModel.setRowCount(0);
 		copyOfBooksModel.setRowCount(0);
-		List<String[]> booksData = new ArrayList<>();
 		booksModel = mbController.getBookShelfModel(booksModel);
 		copyOfBooksModel = mbController.getBookShelfModel(copyOfBooksModel);
 		// for (String[] bd : booksData) {

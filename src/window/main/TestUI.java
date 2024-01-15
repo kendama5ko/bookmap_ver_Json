@@ -15,6 +15,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -50,7 +52,7 @@ public class TestUI extends Window {
             @Override
             public void windowClosing(WindowEvent e) {
                 // ウィンドウが閉じるときに実行したいメソッドを呼び出す
-                mfc.setlastBook(bookTitle);
+                mfc.setlastBook(bookID, bookTitle);
             }
         });
 
@@ -60,8 +62,11 @@ public class TestUI extends Window {
 		Window testUI = this;
 		actionList = new ActionList(this);
 		mfc = new MainFrameController();
-		bookTitle = mfc.getLastBook();
-		System.out.println(bookTitle);
+		String lastBookInfo[] = new String[2];
+		lastBookInfo = mfc.getLastBook();
+		bookID = lastBookInfo[0];
+		bookTitle = lastBookInfo[1];
+		System.out.println(bookTitle);	////デバッグ用
 
 		/*
 		 * GridBagLayout
@@ -97,31 +102,33 @@ public class TestUI extends Window {
 		gbc_bookTitleLabel.gridy = 0;
 		panel.add(bookTitleLabel, gbc_bookTitleLabel);
 
-		bookListButton = new JButton("管理");
-		bookListButton.setFont(new Font("メイリオ", Font.BOLD, 11));
-		bookListButton.setToolTipText("本の追加や削除");
-		bookListButton.setForeground(new Color(40, 40, 40));
-		bookListButton.setBackground(new Color(225, 238, 251));
-		bookListButton.setPreferredSize(new Dimension(65, 25));
-		bookListButton.addActionListener(new ActionListener() {
+		ManageBookButton = new JButton("管理");
+		ManageBookButton.setFont(new Font("メイリオ", Font.BOLD, 11));
+		ManageBookButton.setToolTipText("本の追加や削除");
+		ManageBookButton.setForeground(new Color(40, 40, 40));
+		ManageBookButton.setBackground(new Color(225, 238, 251));
+		ManageBookButton.setPreferredSize(new Dimension(65, 25));
+		ManageBookButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				actionList.bookListButtonAction(userId, testUI);
+				actionList.ManageBookButtonAction(userId, testUI);
 			}
 		});
 
-		GridBagConstraints gbc_bookListButton = new GridBagConstraints();
-		gbc_bookListButton.anchor = GridBagConstraints.EAST;
-		gbc_bookListButton.weightx = 1.0;
-		gbc_bookListButton.weighty = 1.0;
-		gbc_bookListButton.insets = new Insets(0, 0, 5, 5);
-		gbc_bookListButton.gridx = 3;
-		gbc_bookListButton.gridy = 0;
-		panel.add(bookListButton, gbc_bookListButton);
+		GridBagConstraints gbc_manageBookButton = new GridBagConstraints();
+		gbc_manageBookButton.anchor = GridBagConstraints.EAST;
+		gbc_manageBookButton.weightx = 1.0;
+		gbc_manageBookButton.weighty = 1.0;
+		gbc_manageBookButton.insets = new Insets(0, 0, 5, 5);
+		gbc_manageBookButton.gridx = 3;
+		gbc_manageBookButton.gridy = 0;
+		panel.add(ManageBookButton, gbc_manageBookButton);
 
-		comboModel = mfc.setBookList();
-		bookShelfCombo = new JComboBox<>(comboModel);
+		DefaultComboBoxModel<BookInfo> testcomboModel = mfc.setBookList();
+		JComboBox<BookInfo> bookShelfCombo = new JComboBox<>(testcomboModel);
+
+		// bookShelfCombo = new JComboBox<>(testcomboModel);
 		bookShelfCombo.setForeground(new Color(40, 40, 40));
 		bookShelfCombo.setBackground(new Color(250, 250, 255));
 		bookShelfCombo.setSelectedIndex(-1);
@@ -131,7 +138,12 @@ public class TestUI extends Window {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				bookTitle = String.valueOf(bookShelfCombo.getSelectedItem());
-				updateText(bookTitle);
+				BookInfo selectedBook = (BookInfo) bookShelfCombo.getSelectedItem();
+				// JComboBoxが未選択(null)でないことを確認してからIDを取得
+				if (selectedBook != null) {
+					bookID = selectedBook.getID();
+				}
+				updateText(bookID);
 			}
 		});
 		GridBagConstraints gbc_bookShelfCombo = new GridBagConstraints();
@@ -143,7 +155,7 @@ public class TestUI extends Window {
 		gbc_bookShelfCombo.gridy = 0;
 		panel.add(bookShelfCombo, gbc_bookShelfCombo);
 
-		remainPagesLabel = new JLabel(mfc.setRemainPageLabel(bookTitle));
+		remainPagesLabel = new JLabel(mfc.setRemainPageLabel(bookID));
 		remainPagesLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		remainPagesLabel.setBackground(new Color(235, 245, 255));
 		remainPagesLabel.setOpaque(true);
@@ -164,7 +176,7 @@ public class TestUI extends Window {
 		progressModel.addColumn("日付");
 		progressModel.addColumn("日付");
 		progressModel.addColumn("ID");
-		progressModel = mfc.reloadProgressModel(bookTitle, progressModel);
+		progressModel = mfc.reloadProgressModel(bookID, progressModel);
 		progressDataTable = new JTable(progressModel) {
 			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -189,7 +201,7 @@ public class TestUI extends Window {
 		gbc_scrollPane_1.gridy = 2;
 		panel.add(scrollPane, gbc_scrollPane_1);
 
-		progressLabel = new JLabel(mfc.setProgressLabel(bookTitle));
+		progressLabel = new JLabel(mfc.setProgressLabel(bookID));
 		progressLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		progressLabel.setFont(new Font("メイリオ", Font.PLAIN, 34));
 		progressLabel.setForeground(new Color(40, 40, 40));
@@ -203,7 +215,7 @@ public class TestUI extends Window {
 		panel.add(progressLabel, gbc_progressLabel);
 
 		progressBar = new JProgressBar(JProgressBar.VERTICAL, 0, 100);
-		progressBar.setValue(mfc.setProgress(bookTitle));
+		progressBar.setValue(mfc.setProgress(bookID));
 		progressBar.setBackground(new Color(250, 250, 255));
 		progressBar.setForeground(new Color(40, 150, 243));
 		progressBar.setFont(new Font("MS UI Gothic", Font.PLAIN, 36));
@@ -217,7 +229,7 @@ public class TestUI extends Window {
 		gbc_progressBar.gridy = 2;
 		panel.add(progressBar, gbc_progressBar);
 
-		avgPAnsLabel = new JLabel(mfc.setRemainPageLabel(bookTitle));
+		avgPAnsLabel = new JLabel(mfc.setRemainPageLabel(bookID));
 		avgPAnsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		avgPAnsLabel.setForeground(new Color(40, 40, 40));
 		avgPAnsLabel.setFont(new Font("メイリオ", Font.PLAIN, 20));
@@ -259,11 +271,11 @@ public class TestUI extends Window {
 					return;
 				} else {
 					todayProgress = Integer.valueOf(inputTodayPages.getText());
-					mfc.addRecentData(bookTitle, userId, bookId, todayProgress);
+					mfc.addRecentData(bookID, userId, bookId, todayProgress);
 					inputTodayPages.setText(null);
 				}
-				mfc.reloadProgressModel(bookTitle, progressModel);
-				updateText(bookTitle);
+				mfc.reloadProgressModel(bookID, progressModel);
+				updateText(bookID);
 			}
 
 		});
@@ -280,7 +292,7 @@ public class TestUI extends Window {
 		gbc_inputButton.gridy = 4;
 		panel.add(inputButton, gbc_inputButton);
 
-		sumDaysAnsLabel = new JLabel("Total Days  " + mfc.getTotalDays(bookTitle) + "days");
+		sumDaysAnsLabel = new JLabel("Total Days  " + mfc.getTotalDays(bookID) + "days");
 		sumDaysAnsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		sumDaysAnsLabel.setForeground(new Color(40, 40, 40));
 		sumDaysAnsLabel.setFont(new Font("メイリオ", Font.PLAIN, 20));
@@ -312,10 +324,10 @@ public class TestUI extends Window {
 							"選択された進捗データを本当に削除しますか？", "注意", JOptionPane.YES_NO_OPTION,
 							JOptionPane.WARNING_MESSAGE);
 					if (userAnswer == JOptionPane.YES_OPTION) {
-						mfc.deleteSelectedData(bookTitle, createdAt);
+						mfc.deleteSelectedData(bookID, createdAt);
 					}
-					mfc.reloadProgressModel(bookTitle, progressModel);
-					updateText(bookTitle);
+					mfc.reloadProgressModel(bookID, progressModel);
+					updateText(bookID);
 				}
 			}
 		});
@@ -358,7 +370,7 @@ public class TestUI extends Window {
 
 	public void changeFontColor() {
 		List<Component> fontComponents = Arrays.asList(
-				bookListButton, bookTitleLabel, bookShelfCombo, changeUI,
+				ManageBookButton, bookTitleLabel, bookShelfCombo, changeUI,
 				remainPagesLabel, avgPAnsLabel, progressDataTable,
 				inputTodayPages, inputButton, sumDaysAnsLabel, deleteButton);
 
@@ -370,7 +382,7 @@ public class TestUI extends Window {
 
 	public void changeBackGround() {
 		List<Component> BackGroundComponents = Arrays.asList(
-				bookListButton, bookShelfCombo, changeUI, scrollPane,
+				ManageBookButton, bookShelfCombo, changeUI, scrollPane,
 				progressBar, inputTodayPages, inputButton, deleteButton);
 		int red = Integer.valueOf(inputRed.getText());
 		int green = Integer.valueOf(inputGreen.getText());
@@ -378,16 +390,15 @@ public class TestUI extends Window {
 		actionList.setBackGroundColor(BackGroundComponents, red, green, blue);
 	}
 
-	public void updateText(String bookTitle) {
+	public void updateText(String bookID) {
 		adjustableFontSize(bookTitle);
-		remainPagesLabel.setText(mfc.setRemainPageLabel(bookTitle));
-		avgPAnsLabel.setText(mfc.setAvgPagesLabel(bookTitle));
-		sumDaysAnsLabel.setText("Total Days  " + mfc.getTotalDays(bookTitle) + "days");
-		progressModel = mfc.reloadProgressModel(bookTitle, progressModel);
-		progressBar.setValue(mfc.setProgress(bookTitle));
-		progressLabel.setText(mfc.setProgressLabel(bookTitle));
+		remainPagesLabel.setText(mfc.setRemainPageLabel(bookID));
+		avgPAnsLabel.setText(mfc.setAvgPagesLabel(bookID));
+		sumDaysAnsLabel.setText("Total Days  " + mfc.getTotalDays(bookID) + "days");
+		progressModel = mfc.reloadProgressModel(bookID, progressModel);
+		progressBar.setValue(mfc.setProgress(bookID));
+		progressLabel.setText(mfc.setProgressLabel(bookID));
 		panel.repaint();
-
 	}
 
 }

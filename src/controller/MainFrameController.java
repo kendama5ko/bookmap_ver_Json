@@ -12,6 +12,8 @@ import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
@@ -21,6 +23,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -33,6 +36,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dao.JsonDAO;
+import window.main.BookInfo;
 
 public class MainFrameController {
 
@@ -42,7 +46,8 @@ public class MainFrameController {
     JsonNode node;
     JsonDAO jdao;
     DefaultComboBoxModel<String> comboModel;
-    List<String> bookList;
+    List<Map<String, String>> bookInfoList;
+    BookInfo[] bookTitleList;
 
     public MainFrameController() {
         this.dataFile = Paths.get("lib/data/testData.json").toFile();
@@ -51,34 +56,42 @@ public class MainFrameController {
         this.properties = new Properties();
     }
 
-    public DefaultComboBoxModel<String> setBookList() {
-        comboModel = new DefaultComboBoxModel<>();
-        List<Map<String, String>> bookInfoList = new ArrayList<>();
+    public DefaultComboBoxModel<BookInfo> setBookList() {
         bookInfoList = jdao.searchBookList();
-        for (Map<String, String>  bookInfo : bookInfoList) {
-            comboModel.addElement(bookInfo.get("タイトル"));
+        bookTitleList = new BookInfo[bookInfoList.size()];
+        int i = 0;
+        for (Map<String, String> book : bookInfoList) {
+            BookInfo bookTitle = new BookInfo(book.get("ID"), book.get("タイトル"));
+            bookTitleList[i] = bookTitle;
+            i++;
         }
         // int newIndexStart = 0; // 新しい要素の最初のインデックス
         // int newIndexEnd = bookList.size() - 1; // 新しい要素の最後のインデックス
 
         // // fireIntervalAdded を呼び出して変更を通知
         // fireIntervalAdded(this, newIndexStart, newIndexEnd);
+        DefaultComboBoxModel<BookInfo> comboModel = new DefaultComboBoxModel<>(bookTitleList);
         return comboModel;
+
     }
 
-    public String getLastBook() {
+    public String[] getLastBook() {
         try {
             properties.load(new InputStreamReader(new FileInputStream("src/bookmap.properties"), "UTF-8"));
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        String lastBook = properties.getProperty("lastBook");
-        return lastBook;
+        String lastBookID = properties.getProperty("lastBookID");
+        String lastBookTitle = properties.getProperty("lastBookTitle");
+        String[] lastBookInfo = {lastBookID, lastBookTitle};
+
+        return lastBookInfo;
     }
 
-    public void setlastBook(String bookTitle) {
-        properties.setProperty("lastBook", bookTitle);
+    public void setlastBook(String bookID, String bookTitle) {
+        properties.setProperty("lastBookID", bookID);
+        properties.setProperty("lastBookTitle", bookTitle);
         try {
             properties.store(new OutputStreamWriter(new FileOutputStream("src/bookmap.properties"), "UTF-8"), null);
         } catch (IOException e) {
@@ -86,9 +99,9 @@ public class MainFrameController {
         }
     }
 
-    public DefaultTableModel reloadProgressModel(String bookTitle, DefaultTableModel progressModel) {
+    public DefaultTableModel reloadProgressModel(String bookID, DefaultTableModel progressModel) {
         progressModel.setRowCount(0);
-        jdao.setDataFromJson(bookTitle, progressModel);
+        jdao.setDataFromJson(bookID, progressModel);
 
         // timestampで降順にソート
         Collections.sort(progressModel.getDataVector(), (o1, o2) -> {
@@ -134,7 +147,7 @@ public class MainFrameController {
         return progressDataTable;
     }
 
-    public void addRecentData(String bookTitle, int userId, int bookId, int totalPages) {
+    public void addRecentData(String bookID, int userId, int bookId, int todayProgress) {
         // 現在時刻を取得
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy MM/dd");
         DateTimeFormatter ISO8601 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
@@ -143,19 +156,19 @@ public class MainFrameController {
         String currentDate = ZonedDateTime.now(ZoneId.of("Asia/Tokyo")).format(dateFormat);
 
         // 進捗データを追加
-        jdao.addProgressData(bookTitle, currentDate, totalPages, createdAt);
+        jdao.addProgressData(bookID, currentDate, todayProgress, createdAt);
     }
 
-    public void deleteSelectedData(String bookTitle, long createdAt) {
-        jdao.deleteProgressData(bookTitle, createdAt);
+    public void deleteSelectedData(String bookID, long createdAt) {
+        jdao.deleteProgressData(bookID, createdAt);
     }
 
     /*
      * setText Label, Button
      */
-    public String setRemainPageLabel(String bookTitle) {
-        int currentPages = jdao.getCurrentPages(bookTitle);
-        int totalPages = jdao.getTotalPages(bookTitle);
+    public String setRemainPageLabel(String bookID) {
+        int currentPages = jdao.getCurrentPages(bookID);
+        int totalPages = jdao.getTotalPages(bookID);
 
         if (currentPages > totalPages) {
             return "Finish!!";
@@ -163,11 +176,11 @@ public class MainFrameController {
         return " " + currentPages + "P / " + totalPages + "P";
     }
 
-    public int getTotalDays(String bookTitle) {
+    public int getTotalDays(String bookID) {
         int sumDays = 0;
         String previousDate = null;
 
-        List<String> dates = jdao.getDates(bookTitle);
+        List<String> dates = jdao.getDates(bookID);
         for (String date : dates) {
             if (!date.equals(previousDate)) {
                 sumDays++;
@@ -177,9 +190,9 @@ public class MainFrameController {
         return sumDays;
     }
 
-    public String setAvgPagesLabel(String bookTitle) {
-        int totalDays = getTotalDays(bookTitle);
-        int currentPages = jdao.getCurrentPages(bookTitle);
+    public String setAvgPagesLabel(String bookID) {
+        int totalDays = getTotalDays(bookID);
+        int currentPages = jdao.getCurrentPages(bookID);
 
         if (totalDays <= 0) {
             return "0P / day";
@@ -189,9 +202,9 @@ public class MainFrameController {
         }
     }
 
-    public int setProgress(String bookTitle) {
-        int currentPages = jdao.getCurrentPages(bookTitle);
-        int totalPages = jdao.getTotalPages(bookTitle);
+    public int setProgress(String bookID) {
+        int currentPages = jdao.getCurrentPages(bookID);
+        int totalPages = jdao.getTotalPages(bookID);
 
         if (totalPages == 0) {
             return 0;
@@ -202,8 +215,8 @@ public class MainFrameController {
         }
     }
 
-    public String setProgressLabel(String bookTitle) {
-        return setProgress(bookTitle) + "％";
+    public String setProgressLabel(String bookID) {
+        return setProgress(bookID) + "％";
     }
 
     public void changeFont(JComponent component, Font font) {

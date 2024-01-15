@@ -60,11 +60,11 @@ public class Controller extends DefaultComboBoxModel<String> {
 		for (String bl : this.bookList) {
 			comboModel.addElement(bl);
 		}
-		int newIndexStart = 0; // 新しい要素の最初のインデックス
-		int newIndexEnd = bookList.size() - 1; // 新しい要素の最後のインデックス
+		// int newIndexStart = 0; // 新しい要素の最初のインデックス
+		// int newIndexEnd = bookList.size() - 1; // 新しい要素の最後のインデックス
 
-		// fireIntervalAdded を呼び出して変更を通知
-		fireIntervalAdded(this, newIndexStart, newIndexEnd);
+		// // fireIntervalAdded を呼び出して変更を通知
+		// fireIntervalAdded(this, newIndexStart, newIndexEnd);
 		return comboModel;
 	}
 

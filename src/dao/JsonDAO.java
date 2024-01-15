@@ -6,11 +6,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
 import java.util.*;
-
 
 import javax.swing.table.DefaultTableModel;
 
@@ -19,6 +15,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.mysql.cj.x.protobuf.MysqlxDatatypes.Array;
 
 public class JsonDAO {
     private File dataFile;
@@ -28,7 +25,9 @@ public class JsonDAO {
     JsonNode bookDataNode;
     JsonNode bookShelfNode;
     JsonNode progressDataNode = null;
+    ArrayNode arraybookShelfNode;
     ArrayNode arrayProgressDataNode;
+    JsonNode checkNode;
 
     public JsonDAO() {
         this.dataFile = Paths.get("lib/data/testData.json").toFile();
@@ -52,11 +51,16 @@ public class JsonDAO {
         }
     }
 
-    public JsonNode getProgressDataNode(String bookTitle) {
-        progressDataNode = bookShelfNode;
+    public boolean hasProgressData(String bookTitle) {
+        JsonNode progressDataNode = getProgressDataNode(bookTitle);
+        return progressDataNode != null;
+    }
+
+    public JsonNode getProgressDataNode(String bookID) {
+        progressDataNode = bookShelfNode; //いる？/////////////////////////
         for (JsonNode bookNode : bookShelfNode) {
-            String tempBook = bookNode.get("タイトル").asText();
-            if (tempBook.equals(bookTitle)) {
+            String tempID = bookNode.get("ID").asText();
+            if (tempID.equals(bookID)) {
                 progressDataNode = bookNode.get("進捗データ");
             }
         }
@@ -65,58 +69,73 @@ public class JsonDAO {
 
     public List<Map<String, String>> searchBookList() {
         List<Map<String, String>> bookInfoList = new ArrayList<>();
-    
+
         for (JsonNode bsNode : bookShelfNode) {
             Map<String, String> bookInfo = new HashMap<>();
             bookInfo.put("タイトル", bsNode.get("タイトル").asText());
             bookInfo.put("著者", bsNode.get("著者").asText());
             bookInfo.put("ジャンル", bsNode.get("ジャンル").asText());
             bookInfo.put("総ページ数", bsNode.get("総ページ数").asText());
-            bookInfo.put("UUID", bsNode.get("UUID").asText());
+            bookInfo.put("ID", bsNode.get("ID").asText());
             bookInfoList.add(bookInfo);
         }
         return bookInfoList;
     }
 
-    public DefaultTableModel setDataFromJson(String bookTitle, DefaultTableModel progressModel) {
-        // JsonNode progressDataNode = node.get("本棚").get(0).get("進捗データ");
-        progressDataNode = getProgressDataNode(bookTitle);
+    public DefaultTableModel setDataFromJson(String bookID, DefaultTableModel progressModel) {
+        progressDataNode = getProgressDataNode(bookID);
         DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
         for (JsonNode progressNode : progressDataNode) {
-            int pageCount = progressNode.get("読んだページ数").asInt();
-            String date = progressNode.get("日付").asText();
-            String createdAtString = progressNode.get("created_at").asText();
 
-            OffsetDateTime offsetDateTime = OffsetDateTime.parse(createdAtString, formatter);
+            checkNode = progressNode.get("読んだページ数");
+            if (checkNode != null) {
+                int pageCount = progressNode.get("読んだページ数").asInt();
+                String date = progressNode.get("日付").asText();
+                String createdAtString = progressNode.get("created_at").asText();
+                // if (date != null) {
 
-            // OffsetDateTimeからInstantを取得
-            Instant createdAtInstant = offsetDateTime.toInstant();
-            long createdAtTimestamp = createdAtInstant.toEpochMilli();
+                OffsetDateTime offsetDateTime = OffsetDateTime.parse(createdAtString, formatter);
 
-            progressModel.addRow(new Object[] { pageCount, date, createdAtTimestamp });
+                // OffsetDateTimeからInstantを取得
+                Instant createdAtInstant = offsetDateTime.toInstant();
+                long createdAtTimestamp = createdAtInstant.toEpochMilli();
+
+                progressModel.addRow(new Object[] { pageCount, date, createdAtTimestamp });
+            }
         }
         return progressModel;
     }
 
-    public void addProgressData(String bookTitle, String currentDate, int totalPages, String createdAt) {
-        // arrayProgressDataNode = (ArrayNode) node.get("本棚").get(0).get("進捗データ");
-        arrayProgressDataNode = (ArrayNode) getProgressDataNode(bookTitle);
+    public void addBookToJson(Map<String, String> bookInfoMap) {
+        arraybookShelfNode = (ArrayNode) bookShelfNode;
+
+        ObjectNode newBookNode = mapper.createObjectNode();
+        for (Map.Entry<String, String> entry : bookInfoMap.entrySet()) {
+            newBookNode.put(entry.getKey(), entry.getValue());
+        }
+        newBookNode.putArray("進捗データ");
+
+        arraybookShelfNode.add(newBookNode);
+        writeToJsonFile(node);
+    }
+
+    public void addProgressData(String bookID, String currentDate, int todayProgress, String createdAt) {
+        arrayProgressDataNode = (ArrayNode) getProgressDataNode(bookID);
 
         ObjectNode newProgressNode = mapper.createObjectNode();
         newProgressNode.put("日付", currentDate);
-        newProgressNode.put("読んだページ数", totalPages);
+        newProgressNode.put("読んだページ数", todayProgress);
         newProgressNode.put("created_at", createdAt);
         arrayProgressDataNode.add(newProgressNode);
 
         writeToJsonFile(node);
     }
 
-    public void deleteProgressData(String bookTitle, long createdAt) {
+    public void deleteProgressData(String bookID, long createdAt) {
         // 進捗データから選択した行を削除
         // arrayProgressDataNode = (ArrayNode) node.get("本棚").get(0).get("進捗データ");
-        arrayProgressDataNode = (ArrayNode) getProgressDataNode(bookTitle);
-
+        arrayProgressDataNode = (ArrayNode) getProgressDataNode(bookID);
 
         for (int i = 0; i < arrayProgressDataNode.size(); i++) {
             JsonNode progressNode = arrayProgressDataNode.get(i);
@@ -132,33 +151,56 @@ public class JsonDAO {
         writeToJsonFile(node);
     }
 
-
-
-    public int getCurrentPages(String bookTitle) {
+    public int getCurrentPages(String bookID) {
         int currentPages = 0;
-        progressDataNode = getProgressDataNode(bookTitle);
+        progressDataNode = getProgressDataNode(bookID);
         for (JsonNode data : progressDataNode) {
-            currentPages += data.get("読んだページ数").asInt();
+            JsonNode pageCountNode = data.get("読んだページ数");
+
+            if (pageCountNode != null && !pageCountNode.isNull()) {
+                currentPages += pageCountNode.asInt();
+            }
         }
         return currentPages;
     }
 
-    public int getTotalPages(String bookTitle) {
+    public int getTotalPages(String bookID) {
         int totalPages = 0;
         for (JsonNode book : bookShelfNode) {
-            if (book.get("タイトル").asText().equals(bookTitle)) {
+            if (book.get("ID").asText().equals(bookID)) {
                 totalPages = book.get("総ページ数").asInt();
             }
         }
         return totalPages;
     }
 
-    public List<String> getDates(String bookTitle) {
+    public List<String> getDates(String bookID) {
         List<String> dates = new ArrayList<>();
-        progressDataNode = getProgressDataNode(bookTitle);
+        progressDataNode = getProgressDataNode(bookID);
+
         for (JsonNode date : progressDataNode) {
-            dates.add(date.get("日付").asText());
+            checkNode = date.get("日付");
+            if (checkNode != null) {
+                dates.add(date.get("日付").asText());
+            }
         }
         return dates;
+    }
+
+    public void deleteBook(String bookTitle) {
+        arraybookShelfNode = (ArrayNode)bookShelfNode;
+        int index = 0;
+        for (int i = 0; i < arraybookShelfNode.size(); i++) {
+            JsonNode node = arraybookShelfNode.get(i);
+            if (node.get("タイトル").asText().equals(bookTitle)) {
+                index = i;
+                break;
+            }
+        }
+        // 要素を削除 要素がない時は-1が返ってくる
+        if (index != -1) {
+            arraybookShelfNode.remove(index);
+        }
+        writeToJsonFile(node);
     }
 }

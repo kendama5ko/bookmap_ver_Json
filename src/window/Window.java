@@ -30,7 +30,7 @@ public abstract class Window {
 	
 	protected JFrame frame;
 	protected JPanel panel;
-	protected JButton bookListButton;
+	protected JButton ManageBookButton;
 	protected JButton inputButton;
 	protected JButton deleteButton;
 	protected JButton changeUI;
@@ -50,6 +50,7 @@ public abstract class Window {
 	protected int bookId;
 	protected List<String> bookList;
 	protected String bookTitle;
+	protected String bookID;
 	protected ManageBooks mBooks;
 	protected JTextField inputRed;
 	protected JTextField inputGreen;
