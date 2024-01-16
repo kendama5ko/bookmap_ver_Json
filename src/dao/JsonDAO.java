@@ -42,6 +42,8 @@ public class JsonDAO {
         this.bookShelfNode = node.get("本棚");
     }
 
+
+
     public void writeToJsonFile(JsonNode node) {
         try {
             // 更新されたJSONデータをファイルに書き込む
@@ -57,14 +59,14 @@ public class JsonDAO {
     }
 
     public JsonNode getProgressDataNode(String bookID) {
-        progressDataNode = bookShelfNode; //いる？/////////////////////////
         for (JsonNode bookNode : bookShelfNode) {
             String tempID = bookNode.get("ID").asText();
             if (tempID.equals(bookID)) {
                 progressDataNode = bookNode.get("進捗データ");
+                return progressDataNode;
             }
         }
-        return progressDataNode;
+        return mapper.createObjectNode();
     }
 
     public List<Map<String, String>> searchBookList() {
@@ -93,7 +95,6 @@ public class JsonDAO {
                 int pageCount = progressNode.get("読んだページ数").asInt();
                 String date = progressNode.get("日付").asText();
                 String createdAtString = progressNode.get("created_at").asText();
-                // if (date != null) {
 
                 OffsetDateTime offsetDateTime = OffsetDateTime.parse(createdAtString, formatter);
 
@@ -188,6 +189,7 @@ public class JsonDAO {
     }
 
     public void deleteBook(String bookTitle) {
+        this.bookShelfNode = node.get("本棚");
         arraybookShelfNode = (ArrayNode)bookShelfNode;
         int index = 0;
         for (int i = 0; i < arraybookShelfNode.size(); i++) {

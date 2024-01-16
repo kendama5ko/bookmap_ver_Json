@@ -38,14 +38,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dao.JsonDAO;
 import window.main.BookInfo;
 
-public class MainFrameController {
+public class MainFrameController extends DefaultComboBoxModel<String> {
 
     Properties properties;
     File dataFile;
     ObjectMapper mapper;
     JsonNode node;
     JsonDAO jdao;
-    DefaultComboBoxModel<String> comboModel;
+    DefaultComboBoxModel<BookInfo> comboModel;
     List<Map<String, String>> bookInfoList;
     BookInfo[] bookTitleList;
 
@@ -57,6 +57,7 @@ public class MainFrameController {
     }
 
     public DefaultComboBoxModel<BookInfo> setBookList() {
+        this.jdao = new JsonDAO();
         bookInfoList = jdao.searchBookList();
         bookTitleList = new BookInfo[bookInfoList.size()];
         int i = 0;
@@ -65,14 +66,20 @@ public class MainFrameController {
             bookTitleList[i] = bookTitle;
             i++;
         }
+        comboModel = new DefaultComboBoxModel<>();
+        
+        comboModel.removeAllElements();
+        for (BookInfo bookTitle : bookTitleList) {
+            comboModel.addElement(bookTitle);
+        }
+        
         // int newIndexStart = 0; // 新しい要素の最初のインデックス
-        // int newIndexEnd = bookList.size() - 1; // 新しい要素の最後のインデックス
+        // int newIndexEnd = bookInfoList.size() - 1; // 新しい要素の最後のインデックス
 
         // // fireIntervalAdded を呼び出して変更を通知
         // fireIntervalAdded(this, newIndexStart, newIndexEnd);
-        DefaultComboBoxModel<BookInfo> comboModel = new DefaultComboBoxModel<>(bookTitleList);
-        return comboModel;
 
+        return comboModel;
     }
 
     public String[] getLastBook() {
@@ -167,6 +174,7 @@ public class MainFrameController {
      * setText Label, Button
      */
     public String setRemainPageLabel(String bookID) {
+        
         int currentPages = jdao.getCurrentPages(bookID);
         int totalPages = jdao.getTotalPages(bookID);
 

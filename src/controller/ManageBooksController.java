@@ -70,7 +70,6 @@ public class ManageBooksController {
 	}
 
 	public void deleteBookByTable(String bookTitle) {
-		bsdao = new BookShelfDAO();
 		jdao.deleteBook(bookTitle);
 	}
 

@@ -148,7 +148,7 @@ public class ManageBooks {
 						String result = mbController.addBook(bookInfoList);
 						System.out.println(result);
 						clearText(bPanel);
-						//window.updateBookShlefCombo();
+						window.updateBookShlefCombo();
 
 					} catch (NumberFormatException ne) {
 						ne.printStackTrace();

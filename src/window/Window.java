@@ -20,13 +20,14 @@ import javax.swing.table.DefaultTableModel;
 import controller.ActionList;
 import controller.Controller;
 import controller.MainFrameController;
+import window.main.BookInfo;
 import window.sub.ManageBooks;
 
 public abstract class Window {
 	protected int todayProgress;
 	public Controller controller = new Controller();
 	public ActionList actionList;
-	public MainFrameController mfc;
+	public MainFrameController mfc = new MainFrameController();
 	
 	protected JFrame frame;
 	protected JPanel panel;
@@ -44,8 +45,8 @@ public abstract class Window {
 	protected JProgressBar progressBar;
 	protected JScrollPane scrollPane;
 	protected DefaultTableModel progressModel;
-	protected DefaultComboBoxModel<String> comboModel;
-	protected JComboBox<String> bookShelfCombo = new JComboBox<String>();
+	protected DefaultComboBoxModel<BookInfo> comboModel;
+	protected JComboBox<BookInfo> bookShelfCombo = new JComboBox<BookInfo>();
 	protected int userId;
 	protected int bookId;
 	protected List<String> bookList;
@@ -56,11 +57,11 @@ public abstract class Window {
 	protected JTextField inputGreen;
 	protected JTextField inputBlue;
 
-	public JComboBox<String> getBookShelfCombo() {
+	public JComboBox<BookInfo> getBookShelfCombo() {
 		return bookShelfCombo;
 	}
 
-	public void setBookShelfCombo(JComboBox<String> bookShelfCombo) {
+	public void setBookShelfCombo(JComboBox<BookInfo> bookShelfCombo) {
 		this.bookShelfCombo = bookShelfCombo;
 	}
 
@@ -95,7 +96,7 @@ public abstract class Window {
 	public void updateBookShlefCombo() {
 		int beforeIndex = bookShelfCombo.getSelectedIndex();
 
-		comboModel = controller.setBookList(userId);
+		comboModel = mfc.setBookList();
 		bookShelfCombo.setModel(comboModel);
 
 		bookShelfCombo.setSelectedIndex(beforeIndex);
@@ -104,7 +105,7 @@ public abstract class Window {
 	public void updateBookShlefCombo(int deletedIndex) {
 		int beforeIndex = bookShelfCombo.getSelectedIndex(); //選択していたアイテムの要素番号を取得
 
-		comboModel = controller.setBookList(userId);
+		comboModel = mfc.setBookList();
 		bookShelfCombo.setModel(comboModel);
 
 		//選択されていたindexより削除されたindexが大きい場合はそのままのindex

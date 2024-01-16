@@ -125,10 +125,9 @@ public class TestUI extends Window {
 		gbc_manageBookButton.gridy = 0;
 		panel.add(ManageBookButton, gbc_manageBookButton);
 
-		DefaultComboBoxModel<BookInfo> testcomboModel = mfc.setBookList();
-		JComboBox<BookInfo> bookShelfCombo = new JComboBox<>(testcomboModel);
-
-		// bookShelfCombo = new JComboBox<>(testcomboModel);
+		comboModel = mfc.setBookList();
+		
+		bookShelfCombo = new JComboBox<>(comboModel);
 		bookShelfCombo.setForeground(new Color(40, 40, 40));
 		bookShelfCombo.setBackground(new Color(250, 250, 255));
 		bookShelfCombo.setSelectedIndex(-1);
