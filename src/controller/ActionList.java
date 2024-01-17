@@ -4,20 +4,13 @@ import java.awt.Color;
 import java.awt.Component;
 import java.util.List;
 
-import javax.swing.JComboBox;
-
-import dao.ProgressDAO;
 import window.Window;
-import window.sub.ManageBooks;
+import window.subFrame.ManageBooks;
 
 public class ActionList {
-	private Window window;
 	private ManageBooks mBooks;
-	private ProgressDAO pdao;
-	private Controller controller;
-	
+
 	public ActionList(Window window) {
-		this.window = window;
 	}
 
 	public void ManageBookButtonAction(int userId, Window window) {
@@ -29,13 +22,7 @@ public class ActionList {
 	}
 	
 	public void bookShelfComboAction(int userId, int bookId) {
-		pdao = new ProgressDAO();
-		controller = new Controller();
-		String bookTitle;
-		JComboBox<String> bookShelfCombo = new JComboBox<>(controller.setBookList(userId));
-		bookTitle = String.valueOf(bookShelfCombo.getSelectedItem());
-		bookId = pdao.searchBookId(userId, bookTitle);
-		
+	
 	}
 
 	public void setFontColor(List<Component>  component,  int red, int green, int blue) {

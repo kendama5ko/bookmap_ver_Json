@@ -18,14 +18,12 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 import controller.ActionList;
-import controller.Controller;
 import controller.MainFrameController;
-import window.main.BookInfo;
-import window.sub.ManageBooks;
+import window.mainFrame.BookInfo;
+import window.subFrame.ManageBooks;
 
 public abstract class Window {
 	protected int todayProgress;
-	public Controller controller = new Controller();
 	public ActionList actionList;
 	public MainFrameController mfc = new MainFrameController();
 	

@@ -1,4 +1,4 @@
-package window.sub;
+package window.subFrame;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -12,7 +12,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -35,7 +34,6 @@ import controller.ManageBooksController;
 import window.Window;
 
 public class ManageBooks {
-	private Window window;
 	private final JFrame manageFrame;
 	private DefaultTableModel booksModel;
 
@@ -70,7 +68,6 @@ public class ManageBooks {
 		/*
 		 * Frame, Panel
 		 */
-		this.window = window;
 		this.manageFrame = new JFrame();
 		manageFrame.setTitle("Books");
 		manageFrame.setBounds(900, 200, 510, 360);
@@ -175,13 +172,14 @@ public class ManageBooks {
 					int modelRow = bookListTable.convertRowIndexToModel(selectedRow);
 					//int bookId = Integer.parseInt(booksModel.getValueAt(modelRow, 4).toString());
 					String bookTitle = booksModel.getValueAt(modelRow, 0).toString();
+					String bookID = booksModel.getValueAt(modelRow, 4).toString();
 
 					// 本当に削除しますか？のポップアップ
 					int userAnswer = JOptionPane.showConfirmDialog(null,
 							"「 " + bookTitle + " 」の進捗データは失われます。本当に削除しますか？", "注意", JOptionPane.YES_NO_OPTION,
 							JOptionPane.WARNING_MESSAGE);
 					if (userAnswer == JOptionPane.YES_OPTION) {
-						mbController.deleteBookByTable(bookTitle);
+						mbController.deleteBookByTable(bookID);
 						updateFrame(userId);
 						window.updateBookShlefCombo(modelRow);
 					} else if (userAnswer == JOptionPane.NO_OPTION) {
@@ -282,7 +280,7 @@ public class ManageBooks {
 		sLayout.putConstraint(SpringLayout.SOUTH, uiButton, -1, SpringLayout.SOUTH, inputTotalPages);
 		sLayout.putConstraint(SpringLayout.WEST, uiButton, 0, SpringLayout.WEST, addBookButton);
 		sLayout.putConstraint(SpringLayout.EAST, uiButton, 0, SpringLayout.EAST, booksScrollPane);
-		bPanel.add(uiButton);
+		//bPanel.add(uiButton);
 		
 		sLayout.putConstraint(SpringLayout.NORTH, addBookButton, 0, SpringLayout.NORTH, inputTitle);
 		sLayout.putConstraint(SpringLayout.SOUTH, addBookButton, 0, SpringLayout.SOUTH, inputTitle);

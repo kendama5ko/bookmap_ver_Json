@@ -1,4 +1,4 @@
-package window.main;
+package window.mainFrame;
 
 
 public class BookInfo {

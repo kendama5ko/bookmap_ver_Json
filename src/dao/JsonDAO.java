@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.mysql.cj.x.protobuf.MysqlxDatatypes.Array;
 
 public class JsonDAO {
     private File dataFile;
@@ -53,10 +52,10 @@ public class JsonDAO {
         }
     }
 
-    public boolean hasProgressData(String bookTitle) {
-        JsonNode progressDataNode = getProgressDataNode(bookTitle);
-        return progressDataNode != null;
-    }
+    // public boolean hasProgressData(String bookTitle) {
+    //     JsonNode progressDataNode = getProgressDataNode(bookTitle);
+    //     return progressDataNode != null;
+    // }
 
     public JsonNode getProgressDataNode(String bookID) {
         for (JsonNode bookNode : bookShelfNode) {
@@ -188,13 +187,13 @@ public class JsonDAO {
         return dates;
     }
 
-    public void deleteBook(String bookTitle) {
+    public void deleteBook(String bookID) {
         this.bookShelfNode = node.get("本棚");
         arraybookShelfNode = (ArrayNode)bookShelfNode;
         int index = 0;
         for (int i = 0; i < arraybookShelfNode.size(); i++) {
             JsonNode node = arraybookShelfNode.get(i);
-            if (node.get("タイトル").asText().equals(bookTitle)) {
+            if (node.get("ID").asText().equals(bookID)) {
                 index = i;
                 break;
             }

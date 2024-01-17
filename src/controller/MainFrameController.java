@@ -12,9 +12,7 @@ import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.AbstractMap;
-import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.List;
@@ -23,7 +21,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -36,7 +33,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dao.JsonDAO;
-import window.main.BookInfo;
+import window.mainFrame.BookInfo;
 
 public class MainFrameController extends DefaultComboBoxModel<String> {
 
@@ -112,7 +109,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
 
         // timestampで降順にソート
         Collections.sort(progressModel.getDataVector(), (o1, o2) -> {
-            Long rowNumber1 = (Long) o1.get(2);
+            Long rowNumber1 = (Long) o1.get(2); //created_atはcolumn3なのでindex2を指定
             Long rowNumber2 = (Long) o2.get(2);
             return rowNumber2.compareTo(rowNumber1);
         });

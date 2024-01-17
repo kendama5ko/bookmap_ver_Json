@@ -1,5 +1,5 @@
 import javax.swing.SwingUtilities;
-import window.login.LoginForm;
+import window.mainFrame.MainFrame;
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -12,7 +12,7 @@ public class Main {
     }
 
     public static void bookMap() {
-        LoginForm login = new LoginForm();
-        login.run();
+        MainFrame mainFrame = new MainFrame();
+        mainFrame.run();
     }
 }

@@ -1,4 +1,4 @@
-package window.main;
+package window.mainFrame;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -16,7 +16,6 @@ import java.util.List;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -35,12 +34,12 @@ import controller.ActionList;
 import controller.MainFrameController;
 import window.Window;
 
-public class TestUI extends Window {
+public class MainFrame extends Window {
 
 	/**
 	 * Create the frame.
 	 */
-	public TestUI(int userId, int previousBookId) {
+	public MainFrame() {
 		/*
 		 * JFrame
 		 */
@@ -126,7 +125,7 @@ public class TestUI extends Window {
 		panel.add(ManageBookButton, gbc_manageBookButton);
 
 		comboModel = mfc.setBookList();
-		
+
 		bookShelfCombo = new JComboBox<>(comboModel);
 		bookShelfCombo.setForeground(new Color(40, 40, 40));
 		bookShelfCombo.setBackground(new Color(250, 250, 255));
@@ -141,6 +140,9 @@ public class TestUI extends Window {
 				// JComboBoxが未選択(null)でないことを確認してからIDを取得
 				if (selectedBook != null) {
 					bookID = selectedBook.getID();
+					bookTitle = selectedBook.getTitle();
+				} else {
+					bookTitle = "";
 				}
 				updateText(bookID);
 			}
@@ -356,6 +358,7 @@ public class TestUI extends Window {
 	public void adjustableFontSize(String bookTitle) {
 		bookTitleLabel.setText(bookTitle);
 		if (bookTitle == null) {
+			bookTitleLabel.setText("");
 			return;
 		}
 		int variable = bookTitle.length() / 10;

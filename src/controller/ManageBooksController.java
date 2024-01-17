@@ -18,7 +18,7 @@ import javax.swing.table.DefaultTableModel;
 import dao.BookShelfDAO;
 import dao.BooksDAO;
 import dao.JsonDAO;
-import window.sub.ManageBooks;
+import window.subFrame.ManageBooks;
 
 public class ManageBooksController {
 	ManageBooks mBooks;
@@ -69,8 +69,8 @@ public class ManageBooksController {
 		return "登録しました。";
 	}
 
-	public void deleteBookByTable(String bookTitle) {
-		jdao.deleteBook(bookTitle);
+	public void deleteBookByTable(String bookID) {
+		jdao.deleteBook(bookID);
 	}
 
 	public String editBookData(int bookId, String columnName, String editedData) {
@@ -78,7 +78,7 @@ public class ManageBooksController {
 		return bsdao.updateBookData(bookId, columnName, editedData);
 	}
 
-	public void updatedProcess(TableModelEvent e) {
+	public void updatedProcess(TableModelEvent e) {	/////////////////////////////////////////////////Json用に変換する
 		// 選択されたセルを特定
 		int sortedRow = e.getFirstRow();
 		int originalRow = mBooks.getBookListTable().convertRowIndexToModel(sortedRow);
