@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.UUID;
 
 import javax.swing.JComponent;
@@ -15,17 +16,17 @@ import javax.swing.JFrame;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableModel;
 
-import dao.BookShelfDAO;
-import dao.BooksDAO;
+import java.text.NumberFormat;
+import java.text.ParseException;
+
 import dao.JsonDAO;
 import window.subFrame.ManageBooks;
 
 public class ManageBooksController {
 	ManageBooks mBooks;
-	BooksDAO bdao;
-	BookShelfDAO bsdao;
 	JsonDAO jdao;
 	List<Map<String, String>> bookInfoList;
+	String updatedMessage;
 
 	public ManageBooksController(ManageBooks mBooks) {
 		this.mBooks = mBooks;
@@ -43,7 +44,7 @@ public class ManageBooksController {
 					bookInfo.get("タイトル"),
 					bookInfo.get("著者"),
 					bookInfo.get("ジャンル"),
-					bookInfo.get("総ページ数"),
+					bookInfo.get("ページ数"),
 					bookInfo.get("ID")
 			});
 		}
@@ -57,9 +58,14 @@ public class ManageBooksController {
 		// HashMapに変換
 		Map<String, String> bookInfoMap = new LinkedHashMap<>();
 
-		String[] keys = { "タイトル", "著者", "ジャンル", "総ページ数" };
+		String[] keys = { "タイトル", "著者", "ジャンル", "ページ数" };
 		for (int i = 0; i < keys.length; i++) {
-			bookInfoMap.put(keys[i], bookInfoList.get(i));
+			if (keys[i].equals("ページ数")) {
+				String convertedTotalPages = convertToHalfWidth(bookInfoList.get(i));
+				bookInfoMap.put(keys[i], convertedTotalPages);
+			} else {
+				bookInfoMap.put(keys[i], bookInfoList.get(i));
+			}
 		}
 
 		// UUIDを生成して追加
@@ -73,30 +79,65 @@ public class ManageBooksController {
 		jdao.deleteBook(bookID);
 	}
 
-	public String editBookData(int bookId, String columnName, String editedData) {
-		bsdao = new BookShelfDAO();
-		return bsdao.updateBookData(bookId, columnName, editedData);
+	public void updatedProcess(TableModelEvent e) {
+		String bookID = getBookID(e);
+		String columnName = getColumnName(e);
+
+		Object editedDataObject = getDataObject(e, mBooks.getBooksModel());		//変更されたデータをobject化
+		Object oldDataObject = getDataObject(e, mBooks.getCopyOfBooksModel());	//比較用の更新前のデータをobject化
+
+		// 新旧のデータを比較　trueなら更新
+		if (!editedDataObject.equals(oldDataObject)) { // && editedDataObject instanceof String
+			updateData(bookID, columnName, editedDataObject);
+			mBooks.displayUpdatedMessage(updatedMessage);
+		}
 	}
 
-	public void updatedProcess(TableModelEvent e) {	/////////////////////////////////////////////////Json用に変換する
-		// 選択されたセルを特定
-		int sortedRow = e.getFirstRow();
-		int originalRow = mBooks.getBookListTable().convertRowIndexToModel(sortedRow);
+	public String getBookID(TableModelEvent e) {
+		return mBooks.getBooksModel().getValueAt(getOriginalRow(e), 4).toString();
+	}
+
+	public String getColumnName(TableModelEvent e) {
 		int column = e.getColumn();
 		String columnName = mBooks.getBooksModel().getColumnName(column);
+		return columnName;
+	}
 
-		// 用意していたモデルの複製と、変更されたモデルの値を比較
-		Object editedDataObject = mBooks.getBooksModel().getValueAt(originalRow, column);
-		Object oldDataObject = mBooks.getCopyOfBooksModel().getValueAt(originalRow, column);
+	public Object getDataObject(TableModelEvent e, DefaultTableModel booksModel) {
+		int originalRow = getOriginalRow(e);
+		int column = e.getColumn();
+		return booksModel.getValueAt(originalRow, column);
+	}
 
-		// originalRowからbookIdを取得するメソッド
-		int bookId = Integer.parseInt(mBooks.getBooksModel().getValueAt(originalRow, 4).toString());
+	public int getOriginalRow(TableModelEvent e) {
+		int sortedRow = e.getFirstRow();
+		int originalRow = mBooks.getBookListTable().convertRowIndexToModel(sortedRow);
+		return originalRow;
+	}
 
-		// editBookDataのoriginalRowの引数をbookIdに変える
-		if (editedDataObject instanceof String && !editedDataObject.equals(oldDataObject)) {
-			String editedData = (String) editedDataObject;
-			String updatedMessage = editBookData(bookId, columnName, editedData);
-			mBooks.displayUpdatedMessage(updatedMessage);
+	public String updateData(String bookID, String columnName, Object editedDataObject) {
+		String editedData = (String) editedDataObject;
+
+		if (columnName.equals("ページ数")) {
+			editedData = convertToHalfWidth(editedData);
+		}
+		updatedMessage = jdao.editBookData(bookID, columnName, editedData);
+		return updatedMessage;
+	}
+
+
+	private String convertToHalfWidth(String fullwidthNumber) {
+		try {
+			// 日本のロケールに基づくNumberFormatを取得
+			NumberFormat format = NumberFormat.getInstance(Locale.JAPAN);
+
+			// parseメソッドを使用して文字列をNumberに変換し、そのままStringに変換して返す
+			return format.parse(fullwidthNumber).toString();
+		} catch (ParseException e) {
+			// パースに失敗した場合のエラー処理
+			e.printStackTrace();
+			System.out.println("数字を全角から半角に変換できませんでした。");
+			return fullwidthNumber; // デフォルト値を返すか、適切な処理を行う
 		}
 	}
 

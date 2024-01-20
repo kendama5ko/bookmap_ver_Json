@@ -111,7 +111,7 @@ public class MainFrame extends Window {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				actionList.ManageBookButtonAction(userId, testUI);
+				actionList.ManageBookButtonAction(testUI);
 			}
 		});
 
@@ -272,7 +272,7 @@ public class MainFrame extends Window {
 					return;
 				} else {
 					todayProgress = Integer.valueOf(inputTodayPages.getText());
-					mfc.addRecentData(bookID, userId, bookId, todayProgress);
+					mfc.addRecentData(bookID, bookId, todayProgress);
 					inputTodayPages.setText(null);
 				}
 				mfc.reloadProgressModel(bookID, progressModel);

@@ -41,8 +41,6 @@ public class JsonDAO {
         this.bookShelfNode = node.get("本棚");
     }
 
-
-
     public void writeToJsonFile(JsonNode node) {
         try {
             // 更新されたJSONデータをファイルに書き込む
@@ -53,8 +51,8 @@ public class JsonDAO {
     }
 
     // public boolean hasProgressData(String bookTitle) {
-    //     JsonNode progressDataNode = getProgressDataNode(bookTitle);
-    //     return progressDataNode != null;
+    // JsonNode progressDataNode = getProgressDataNode(bookTitle);
+    // return progressDataNode != null;
     // }
 
     public JsonNode getProgressDataNode(String bookID) {
@@ -76,7 +74,7 @@ public class JsonDAO {
             bookInfo.put("タイトル", bsNode.get("タイトル").asText());
             bookInfo.put("著者", bsNode.get("著者").asText());
             bookInfo.put("ジャンル", bsNode.get("ジャンル").asText());
-            bookInfo.put("総ページ数", bsNode.get("総ページ数").asText());
+            bookInfo.put("ページ数", bsNode.get("ページ数").asText());
             bookInfo.put("ID", bsNode.get("ID").asText());
             bookInfoList.add(bookInfo);
         }
@@ -132,6 +130,37 @@ public class JsonDAO {
         writeToJsonFile(node);
     }
 
+    public String editBookData(String bookID, String columnName, String editedData) {
+        arraybookShelfNode = (ArrayNode) node.get("本棚");
+
+        for (JsonNode bookNode : arraybookShelfNode) {
+            String tempID = bookNode.get("ID").asText();
+
+            // 更新したい本のノードを見つけたらタイトルを書き換える
+            if (tempID.equals(bookID)) {
+                ((ObjectNode) bookNode).put(columnName, editedData);
+                break;
+            }
+        }
+        writeToJsonFile(node);
+        return updatedMessage(columnName);
+    }
+
+    private String updatedMessage(String columnName) {
+        switch (columnName) {
+            case "タイトル":
+                return "タイトルが変更されました。";
+            case "著者":
+                return "著者名が変更されました";
+            case "ジャンル":
+                return "ジャンル名が変更されました";
+            case "ページ数":
+                return "ページ数が変更されました";
+            default:
+                return columnName;
+        }
+    }
+
     public void deleteProgressData(String bookID, long createdAt) {
         // 進捗データから選択した行を削除
         // arrayProgressDataNode = (ArrayNode) node.get("本棚").get(0).get("進捗データ");
@@ -168,7 +197,7 @@ public class JsonDAO {
         int totalPages = 0;
         for (JsonNode book : bookShelfNode) {
             if (book.get("ID").asText().equals(bookID)) {
-                totalPages = book.get("総ページ数").asInt();
+                totalPages = book.get("ページ数").asInt();
             }
         }
         return totalPages;
@@ -189,7 +218,7 @@ public class JsonDAO {
 
     public void deleteBook(String bookID) {
         this.bookShelfNode = node.get("本棚");
-        arraybookShelfNode = (ArrayNode)bookShelfNode;
+        arraybookShelfNode = (ArrayNode) bookShelfNode;
         int index = 0;
         for (int i = 0; i < arraybookShelfNode.size(); i++) {
             JsonNode node = arraybookShelfNode.get(i);

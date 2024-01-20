@@ -81,7 +81,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
 
     public String[] getLastBook() {
         try {
-            properties.load(new InputStreamReader(new FileInputStream("src/bookmap.properties"), "UTF-8"));
+            properties.load(new InputStreamReader(new FileInputStream("bookmap.properties"), "UTF-8"));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -97,13 +97,14 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         properties.setProperty("lastBookID", bookID);
         properties.setProperty("lastBookTitle", bookTitle);
         try {
-            properties.store(new OutputStreamWriter(new FileOutputStream("src/bookmap.properties"), "UTF-8"), null);
+            properties.store(new OutputStreamWriter(new FileOutputStream("bookmap.properties"), "UTF-8"), null);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public DefaultTableModel reloadProgressModel(String bookID, DefaultTableModel progressModel) {
+        this.jdao = new JsonDAO();
         progressModel.setRowCount(0);
         jdao.setDataFromJson(bookID, progressModel);
 
@@ -151,7 +152,8 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         return progressDataTable;
     }
 
-    public void addRecentData(String bookID, int userId, int bookId, int todayProgress) {
+    public void addRecentData(String bookID, int bookId, int todayProgress) {
+        this.jdao = new JsonDAO();
         // 現在時刻を取得
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy MM/dd");
         DateTimeFormatter ISO8601 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
@@ -171,7 +173,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
      * setText Label, Button
      */
     public String setRemainPageLabel(String bookID) {
-        
+        this.jdao = new JsonDAO();
         int currentPages = jdao.getCurrentPages(bookID);
         int totalPages = jdao.getTotalPages(bookID);
 
@@ -182,6 +184,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
     }
 
     public int getTotalDays(String bookID) {
+        this.jdao = new JsonDAO();
         int sumDays = 0;
         String previousDate = null;
 
@@ -196,6 +199,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
     }
 
     public String setAvgPagesLabel(String bookID) {
+        this.jdao = new JsonDAO();
         int totalDays = getTotalDays(bookID);
         int currentPages = jdao.getCurrentPages(bookID);
 
@@ -208,6 +212,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
     }
 
     public int setProgress(String bookID) {
+        this.jdao = new JsonDAO();
         int currentPages = jdao.getCurrentPages(bookID);
         int totalPages = jdao.getTotalPages(bookID);
 

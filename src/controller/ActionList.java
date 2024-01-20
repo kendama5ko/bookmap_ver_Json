@@ -13,15 +13,15 @@ public class ActionList {
 	public ActionList(Window window) {
 	}
 
-	public void ManageBookButtonAction(int userId, Window window) {
+	public void ManageBookButtonAction(Window window) {
 		if (mBooks == null) {
-			mBooks = new ManageBooks(userId, window);
+			mBooks = new ManageBooks(window);
 		}
 		mBooks.run();
-		mBooks.updateFrame(userId);
+		mBooks.updateFrame();
 	}
 	
-	public void bookShelfComboAction(int userId, int bookId) {
+	public void bookShelfComboAction(int bookId) {
 	
 	}
 

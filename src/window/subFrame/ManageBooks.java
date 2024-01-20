@@ -47,7 +47,7 @@ public class ManageBooks {
 	private final JLabel authorLabel;
 	private final JLabel genreLabel;
 	private final JLabel totalPagesLabel;
-	private final JLabel errorMessageLabel;
+	private final JLabel cautionsLabel;
 	private final JLabel updatedMessageLabel;
 	private final JTextField inputTitle;
 	private final JTextField inputAuthor;
@@ -64,7 +64,7 @@ public class ManageBooks {
 	int sec = 0;
 	ManageBooksController mbController;
 
-	public ManageBooks(int userId, Window window) {
+	public ManageBooks(Window window) {
 		/*
 		 * Frame, Panel
 		 */
@@ -109,7 +109,7 @@ public class ManageBooks {
 				if (e.getType() == TableModelEvent.UPDATE) {
 					mbController = new ManageBooksController(ManageBooks.this);
 					mbController.updatedProcess(e);
-					updateFrame(userId);
+					updateFrame();
 				}
 			}
 		});
@@ -154,7 +154,7 @@ public class ManageBooks {
 				} else {
 					updatedMessage = "ページ数を入力、または5桁以内で入力してください。";
 				}
-				updateFrame(userId);
+				updateFrame();
 				displayUpdatedMessage(updatedMessage);
 			}
 		});
@@ -180,7 +180,7 @@ public class ManageBooks {
 							JOptionPane.WARNING_MESSAGE);
 					if (userAnswer == JOptionPane.YES_OPTION) {
 						mbController.deleteBookByTable(bookID);
-						updateFrame(userId);
+						updateFrame();
 						window.updateBookShlefCombo(modelRow);
 					} else if (userAnswer == JOptionPane.NO_OPTION) {
 						return;
@@ -214,10 +214,11 @@ public class ManageBooks {
 		sLayout.putConstraint(SpringLayout.WEST, totalPagesLabel, 30, SpringLayout.WEST, bPanel);
 		bPanel.add(totalPagesLabel);
 
-		errorMessageLabel = new JLabel("※数字のみ");
-		sLayout.putConstraint(SpringLayout.SOUTH, errorMessageLabel, 29, SpringLayout.SOUTH, genreLabel);
-		sLayout.putConstraint(SpringLayout.EAST, errorMessageLabel, -133, SpringLayout.EAST, bPanel);
-		bPanel.add(errorMessageLabel);
+		cautionsLabel = new JLabel("※必須, 数字のみ");
+		sLayout.putConstraint(SpringLayout.SOUTH, cautionsLabel, 29, SpringLayout.SOUTH, genreLabel);
+		sLayout.putConstraint(SpringLayout.WEST, cautionsLabel, 10, SpringLayout.EAST, totalPagesLabel);
+		// sLayout.putConstraint(SpringLayout.EAST, cautionsLabel, -133, SpringLayout.EAST, bPanel);
+		bPanel.add(cautionsLabel);
 
 		updatedMessageLabel = new JLabel();
 		updatedMessageLabel.setVisible(false);
@@ -249,7 +250,7 @@ public class ManageBooks {
 
 		inputTotalPages = new JTextField();
 		sLayout.putConstraint(SpringLayout.SOUTH, inputTotalPages, 29, SpringLayout.SOUTH, inputGenre);
-		sLayout.putConstraint(SpringLayout.WEST, errorMessageLabel, 6, SpringLayout.EAST, inputTotalPages);
+		sLayout.putConstraint(SpringLayout.WEST, cautionsLabel, 0, SpringLayout.EAST, inputTotalPages);
 
 		inputTotalPages.setPreferredSize(new Dimension(200, 24));
 		inputTotalPages.addKeyListener(new KeyListener() {
@@ -275,11 +276,11 @@ public class ManageBooks {
 		bPanel.add(inputTotalPages);
 		getBooksPanel.add(bPanel, BorderLayout.CENTER);
 
-		JButton uiButton = new JButton("UI");
-		sLayout.putConstraint(SpringLayout.NORTH, uiButton, 0, SpringLayout.NORTH, inputTotalPages);
-		sLayout.putConstraint(SpringLayout.SOUTH, uiButton, -1, SpringLayout.SOUTH, inputTotalPages);
-		sLayout.putConstraint(SpringLayout.WEST, uiButton, 0, SpringLayout.WEST, addBookButton);
-		sLayout.putConstraint(SpringLayout.EAST, uiButton, 0, SpringLayout.EAST, booksScrollPane);
+		// JButton uiButton = new JButton("UI");
+		// sLayout.putConstraint(SpringLayout.NORTH, uiButton, 0, SpringLayout.NORTH, inputTotalPages);
+		// sLayout.putConstraint(SpringLayout.SOUTH, uiButton, -1, SpringLayout.SOUTH, inputTotalPages);
+		// sLayout.putConstraint(SpringLayout.WEST, uiButton, 0, SpringLayout.WEST, addBookButton);
+		// sLayout.putConstraint(SpringLayout.EAST, uiButton, 0, SpringLayout.EAST, booksScrollPane);
 		//bPanel.add(uiButton);
 		
 		sLayout.putConstraint(SpringLayout.NORTH, addBookButton, 0, SpringLayout.NORTH, inputTitle);
@@ -303,7 +304,7 @@ public class ManageBooks {
 
 		addBookButton.setBackground(new Color(225, 238, 251));
 		deleteBookButton.setBackground(new Color(225, 238, 251));
-		uiButton.setBackground(new Color(225, 238, 251));
+		// uiButton.setBackground(new Color(225, 238, 251));
 		
 		Font allFont = new Font("メイリオ", Font.PLAIN, 12);
 		mbController.changeFont(bPanel, allFont);
@@ -321,7 +322,7 @@ public class ManageBooks {
 	}
 
 	// 追加buttonを押した後にJTableの内容を更新
-	public void updateFrame(int userId) {
+	public void updateFrame() {
 		booksModel.setRowCount(0);
 		copyOfBooksModel.setRowCount(0);
 		booksModel = mbController.getBookShelfModel(booksModel);
@@ -366,7 +367,7 @@ public class ManageBooks {
 		model.addColumn("著者");
 		model.addColumn("ジャンル");
 		model.addColumn("ページ数");
-		model.addColumn("UUID");
+		model.addColumn("ID");
 	}
 
 	public boolean numberVaridator(String totalPagesText) {
@@ -397,7 +398,7 @@ public class ManageBooks {
 		return bookListTable;
 	}
 
-	public void displayUpdatedMessage(String updateMessage) {
+	public void displayUpdatedMessage(String updatedMessage) {
 		updatedMessageLabel.setText(updatedMessage);
 		updatedMessageLabel.setVisible(true);
 		timer = new Timer(5000, labelTimer);
