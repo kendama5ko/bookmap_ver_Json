@@ -50,11 +50,6 @@ public class JsonDAO {
         }
     }
 
-    // public boolean hasProgressData(String bookTitle) {
-    // JsonNode progressDataNode = getProgressDataNode(bookTitle);
-    // return progressDataNode != null;
-    // }
-
     public JsonNode getProgressDataNode(String bookID) {
         for (JsonNode bookNode : bookShelfNode) {
             String tempID = bookNode.get("ID").asText();

@@ -11,11 +11,10 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
-import java.util.List;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -28,7 +27,9 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellRenderer;
+//import javax.swing.UIManager;
 
 import controller.ActionList;
 import controller.MainFrameController;
@@ -48,16 +49,20 @@ public class MainFrame extends Window {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setBounds(1000, 200, 714, 381);
 		frame.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                // ウィンドウが閉じるときに実行したいメソッドを呼び出す
-                mfc.setlastBook(bookID, bookTitle);
-            }
-        });
-
+			@Override
+			public void windowClosing(WindowEvent e) {
+				// ウィンドウが閉じるときに実行したいメソッドを呼び出す
+				mfc.setlastBook(bookID, bookTitle);
+			}
+		});
+		// try {
+		// UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+		// } catch (Exception e) {
+		// e.printStackTrace();
+		// }
 
 		Container getP = frame.getContentPane();
-		
+
 		Window testUI = this;
 		actionList = new ActionList(this);
 		mfc = new MainFrameController();
@@ -65,14 +70,13 @@ public class MainFrame extends Window {
 		lastBookInfo = mfc.getLastBook();
 		bookID = lastBookInfo[0];
 		bookTitle = lastBookInfo[1];
-		System.out.println(bookTitle);	////デバッグ用
 
 		/*
 		 * GridBagLayout
 		 */
 		GridBagLayout gbl_panel = new GridBagLayout();
-		gbl_panel.columnWidths = new int[] { 70, 261, 96, 84, 147, 19, 0 };
-		gbl_panel.rowHeights = new int[] { 54, 21, 83, 55, 36, 25, 43 };
+		gbl_panel.columnWidths = new int[] { 166, 165, 96, 84, 147, 19, 0 };
+		gbl_panel.rowHeights = new int[] { 54, 21, 83, 36, 55, 25, 43 };
 		gbl_panel.columnWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		gbl_panel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0 };
 
@@ -88,8 +92,8 @@ public class MainFrame extends Window {
 		 */
 		bookTitleLabel = new JLabel();
 		bookTitleLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		adjustableFontSize(bookTitle);
 		bookTitleLabel.setForeground(new Color(40, 40, 40));
+		adjustableFontSize(bookTitle);
 
 		GridBagConstraints gbc_bookTitleLabel = new GridBagConstraints();
 		gbc_bookTitleLabel.gridwidth = 2;
@@ -130,6 +134,7 @@ public class MainFrame extends Window {
 		bookShelfCombo.setForeground(new Color(40, 40, 40));
 		bookShelfCombo.setBackground(new Color(250, 250, 255));
 		bookShelfCombo.setSelectedIndex(-1);
+		bookShelfCombo.setMaximumSize(new Dimension(130, 30));
 		bookShelfCombo.setMinimumSize(new Dimension(130, 30));
 		bookShelfCombo.addActionListener(new ActionListener() {
 
@@ -151,24 +156,10 @@ public class MainFrame extends Window {
 		gbc_bookShelfCombo.fill = GridBagConstraints.HORIZONTAL;
 		gbc_bookShelfCombo.weighty = 1.0;
 		gbc_bookShelfCombo.weightx = 1.0;
-		gbc_bookShelfCombo.insets = new Insets(0, 10, 5, 5);
+		gbc_bookShelfCombo.insets = new Insets(0, 5, 5, 5);
 		gbc_bookShelfCombo.gridx = 4;
 		gbc_bookShelfCombo.gridy = 0;
 		panel.add(bookShelfCombo, gbc_bookShelfCombo);
-
-		remainPagesLabel = new JLabel(mfc.setRemainPageLabel(bookID));
-		remainPagesLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		remainPagesLabel.setBackground(new Color(235, 245, 255));
-		remainPagesLabel.setOpaque(true);
-		remainPagesLabel.setForeground(new Color(40, 40, 40));
-		remainPagesLabel.setFont(new Font("メイリオ", Font.PLAIN, 38));
-		GridBagConstraints gbc_rPAnsLabel = new GridBagConstraints();
-		gbc_rPAnsLabel.weightx = 1.0;
-		gbc_rPAnsLabel.anchor = GridBagConstraints.NORTHEAST;
-		gbc_rPAnsLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_rPAnsLabel.gridx = 1;
-		gbc_rPAnsLabel.gridy = 2;
-		panel.add(remainPagesLabel, gbc_rPAnsLabel);
 
 		getP.add(panel, BorderLayout.CENTER);
 
@@ -187,6 +178,9 @@ public class MainFrame extends Window {
 			}
 		};
 		progressDataTable = mfc.progressDataTableSettings(progressDataTable);
+		// progressDataTable.getTableHeader().setFont(mainFont);
+		JTableHeader progressDataHeader = progressDataTable.getTableHeader(); // changeFontでフォントを一括で変更するため
+		panel.add(progressDataHeader);
 
 		scrollPane = new JScrollPane(progressDataTable);
 		scrollPane.setPreferredSize(new Dimension(150, 140));
@@ -225,22 +219,107 @@ public class MainFrame extends Window {
 		gbc_progressBar.weightx = 1.0;
 		gbc_progressBar.fill = GridBagConstraints.BOTH;
 		gbc_progressBar.gridheight = 4;
-		gbc_progressBar.insets = new Insets(0, 10, 5, 5);
+		gbc_progressBar.insets = new Insets(0, 5, 8, 5);
 		gbc_progressBar.gridx = 4;
 		gbc_progressBar.gridy = 2;
 		panel.add(progressBar, gbc_progressBar);
 
-		avgPAnsLabel = new JLabel(mfc.setRemainPageLabel(bookID));
-		avgPAnsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		avgPAnsLabel.setForeground(new Color(40, 40, 40));
-		avgPAnsLabel.setFont(new Font("メイリオ", Font.PLAIN, 20));
-		GridBagConstraints gbc_avgPAnsLabel = new GridBagConstraints();
-		gbc_avgPAnsLabel.weightx = 1.0;
-		gbc_avgPAnsLabel.fill = GridBagConstraints.HORIZONTAL;
-		gbc_avgPAnsLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_avgPAnsLabel.gridx = 1;
-		gbc_avgPAnsLabel.gridy = 5;
-		panel.add(avgPAnsLabel, gbc_avgPAnsLabel);
+		bookmarkIconLabel = new JLabel();
+		ImageIcon bookIcon = new ImageIcon("lib/images/bookmark4.png");
+		mfc.setOriginalIcon(bookmarkIconLabel, bookIcon, 60, 50);
+		// bookmarkIconLabel.setBackground(new Color(235, 245, 255));
+		// bookmarkIconLabel.setOpaque(true);
+		GridBagConstraints gbc_bookmarkIconLabel = new GridBagConstraints();
+		gbc_bookmarkIconLabel.weightx = 1.0;
+		gbc_bookmarkIconLabel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_bookmarkIconLabel.anchor = GridBagConstraints.NORTHEAST;
+		gbc_bookmarkIconLabel.insets = new Insets(0, 7, 0, 5);
+		gbc_bookmarkIconLabel.gridx = 0;
+		gbc_bookmarkIconLabel.gridy = 2;
+		panel.add(bookmarkIconLabel, gbc_bookmarkIconLabel);
+
+		remainPagesLabel = new JLabel(mfc.setRemainPageLabel(bookID));
+		remainPagesLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		remainPagesLabel.setBackground(new Color(235, 245, 255));
+		remainPagesLabel.setOpaque(true);
+		remainPagesLabel.setForeground(new Color(40, 40, 40));
+		remainPagesLabel.setFont(new Font("メイリオ", Font.PLAIN, 38));
+		GridBagConstraints gbc_rPAnsLabel = new GridBagConstraints();
+		gbc_rPAnsLabel.weightx = 1.0;
+		gbc_rPAnsLabel.anchor = GridBagConstraints.NORTHEAST;
+		gbc_rPAnsLabel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_rPAnsLabel.insets = new Insets(0, 7, 0, 5);
+		gbc_rPAnsLabel.gridwidth = 2;
+		gbc_rPAnsLabel.gridx = 0;
+		gbc_rPAnsLabel.gridy = 2;
+		panel.add(remainPagesLabel, gbc_rPAnsLabel);
+
+		averageIconLabel = new JLabel();
+		ImageIcon averageIcon = new ImageIcon("lib/images/studying.png");
+		mfc.setOriginalIcon(averageIconLabel, averageIcon, 42, 35);
+		GridBagConstraints gbc_averageIconLabel = new GridBagConstraints();
+		gbc_averageIconLabel.weightx = 1.0;
+		gbc_averageIconLabel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_averageIconLabel.anchor = GridBagConstraints.EAST;
+		gbc_averageIconLabel.insets = new Insets(0, 30, 4, 5);
+		gbc_averageIconLabel.gridx = 1;
+		gbc_averageIconLabel.gridy = 4;
+		panel.add(averageIconLabel, gbc_averageIconLabel);
+
+		avgPagesAnsLabel = new JLabel(mfc.setAvgPagesLabel(bookID));
+		avgPagesAnsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		avgPagesAnsLabel.setBackground(new Color(235, 245, 255));
+		avgPagesAnsLabel.setOpaque(true);
+		avgPagesAnsLabel.setForeground(new Color(40, 40, 40));
+		avgPagesAnsLabel.setFont(new Font("メイリオ", Font.PLAIN, 14));
+		GridBagConstraints gbc_avgPagesAnsLabel = new GridBagConstraints();
+		gbc_avgPagesAnsLabel.weightx = 1.0;
+		gbc_avgPagesAnsLabel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_avgPagesAnsLabel.anchor = GridBagConstraints.EAST;
+		gbc_avgPagesAnsLabel.insets = new Insets(0, 30, 7, 5);
+		gbc_avgPagesAnsLabel.gridx = 1;
+		gbc_avgPagesAnsLabel.gridy = 4;
+		panel.add(avgPagesAnsLabel, gbc_avgPagesAnsLabel);
+
+		calendarIconLabel = new JLabel();
+		ImageIcon calendarIcon = new ImageIcon("lib/images/calendar.png");
+		mfc.setOriginalIcon(calendarIconLabel, calendarIcon, 50, 44);
+		GridBagConstraints gbc_calendarIconLabel = new GridBagConstraints();
+		gbc_calendarIconLabel.weightx = 1.0;
+		gbc_calendarIconLabel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_calendarIconLabel.anchor = GridBagConstraints.EAST;
+		gbc_calendarIconLabel.insets = new Insets(0, 28, 0, 5);
+		gbc_calendarIconLabel.gridx = 1;
+		gbc_calendarIconLabel.gridy = 5;
+		panel.add(calendarIconLabel, gbc_calendarIconLabel);
+
+		atThisPaceLabel = new JLabel(mfc.setAtThisPaceLabel(bookID));
+		atThisPaceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		atThisPaceLabel.setHorizontalTextPosition(JLabel.RIGHT);
+		atThisPaceLabel.setBackground(new Color(235, 245, 255));
+		atThisPaceLabel.setOpaque(true);
+		atThisPaceLabel.setForeground(new Color(40, 40, 40));
+		atThisPaceLabel.setFont(new Font("メイリオ", Font.PLAIN, 14));
+		GridBagConstraints gbc_atThisPaceLabel = new GridBagConstraints();
+		gbc_atThisPaceLabel.weightx = 1.0;
+		gbc_atThisPaceLabel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_atThisPaceLabel.anchor = GridBagConstraints.EAST;
+		gbc_atThisPaceLabel.insets = new Insets(0, 30, 3, 5);
+		gbc_atThisPaceLabel.gridx = 1;
+		gbc_atThisPaceLabel.gridy = 5;
+		panel.add(atThisPaceLabel, gbc_atThisPaceLabel);
+
+		totalDaysAnsLabel = new JLabel("読んだ日数  " + mfc.getTotalDays(bookID) + "日");
+		totalDaysAnsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		totalDaysAnsLabel.setForeground(new Color(150, 150, 150));
+		totalDaysAnsLabel.setFont(new Font("メイリオ", Font.PLAIN, 15));
+		GridBagConstraints gbc_totalDaysAnsLabel = new GridBagConstraints();
+		gbc_totalDaysAnsLabel.weightx = 1.0;
+		gbc_totalDaysAnsLabel.fill = GridBagConstraints.BOTH;
+		gbc_totalDaysAnsLabel.insets = new Insets(10, 0, 4, 5);
+		gbc_totalDaysAnsLabel.gridx = 1;
+		gbc_totalDaysAnsLabel.gridy = 5;
+		// panel.add(totalDaysAnsLabel, gbc_totalDaysAnsLabel);
 
 		inputTodayPages = new JTextField();
 		inputTodayPages.setForeground(new Color(40, 40, 40));
@@ -293,18 +372,6 @@ public class MainFrame extends Window {
 		gbc_inputButton.gridy = 4;
 		panel.add(inputButton, gbc_inputButton);
 
-		sumDaysAnsLabel = new JLabel("Total Days  " + mfc.getTotalDays(bookID) + "days");
-		sumDaysAnsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		sumDaysAnsLabel.setForeground(new Color(40, 40, 40));
-		sumDaysAnsLabel.setFont(new Font("メイリオ", Font.PLAIN, 20));
-		GridBagConstraints gbc_sumDaysAnsLabel = new GridBagConstraints();
-		gbc_sumDaysAnsLabel.weightx = 1.0;
-		gbc_sumDaysAnsLabel.fill = GridBagConstraints.BOTH;
-		gbc_sumDaysAnsLabel.insets = new Insets(0, 0, 5, 5);
-		gbc_sumDaysAnsLabel.gridx = 1;
-		gbc_sumDaysAnsLabel.gridy = 4;
-		panel.add(sumDaysAnsLabel, gbc_sumDaysAnsLabel);
-
 		deleteButton = new JButton("1件削除");
 		deleteButton.setFont(new Font("メイリオ", Font.PLAIN, 11));
 		deleteButton.setToolTipText("上の表から選んだデータを1件削除します");
@@ -318,7 +385,7 @@ public class MainFrame extends Window {
 				if (selectedRow != -1) {
 
 					// 選択された行からcreatedAtを取得
-					long createdAt = (long)progressDataTable.getValueAt(selectedRow, 2);
+					long createdAt = (long) progressDataTable.getValueAt(selectedRow, 2);
 
 					// 本当に削除しますか？のポップアップ
 					int userAnswer = JOptionPane.showConfirmDialog(null,
@@ -337,7 +404,7 @@ public class MainFrame extends Window {
 		gbc_deleteButton.fill = GridBagConstraints.HORIZONTAL;
 		gbc_deleteButton.weighty = 1.0;
 		gbc_deleteButton.weightx = 1.0;
-		gbc_deleteButton.insets = new Insets(0, 0, 5, 5);
+		gbc_deleteButton.insets = new Insets(0, 0, 0, 5);
 		gbc_deleteButton.gridx = 3;
 		gbc_deleteButton.gridy = 5;
 		panel.add(deleteButton, gbc_deleteButton);
@@ -357,50 +424,37 @@ public class MainFrame extends Window {
 
 	public void adjustableFontSize(String bookTitle) {
 		bookTitleLabel.setText(bookTitle);
+		bookTitleLabel.setToolTipText(bookTitle);
 		if (bookTitle == null) {
 			bookTitleLabel.setText("");
 			return;
 		}
-		int variable = bookTitle.length() / 10;
-		if (variable == 0) {
-			bookTitleLabel.setFont(new Font("メイリオ", Font.PLAIN, 30));
+		int textLength = bookTitle.length();
+		int fontSize;
+
+		if (textLength <= 5) {
+			fontSize = 30;
+		} else if (textLength <= 12) {
+			fontSize = 26;
+		} else if (textLength <= 16) {
+			fontSize = 22;
+		} else if (textLength <= 25) {
+			fontSize = 18;
 		} else {
-			int fontSize = 20 / variable + 10;
-			bookTitleLabel.setFont(new Font("メイリオ", Font.PLAIN, fontSize));
+			fontSize = 14;
 		}
-	}
-
-	public void changeFontColor() {
-		List<Component> fontComponents = Arrays.asList(
-				ManageBookButton, bookTitleLabel, bookShelfCombo, changeUI,
-				remainPagesLabel, avgPAnsLabel, progressDataTable,
-				inputTodayPages, inputButton, sumDaysAnsLabel, deleteButton);
-
-		int red = Integer.valueOf(inputRed.getText());
-		int green = Integer.valueOf(inputGreen.getText());
-		int blue = Integer.valueOf(inputBlue.getText());
-		actionList.setFontColor(fontComponents, red, green, blue);
-	}
-
-	public void changeBackGround() {
-		List<Component> BackGroundComponents = Arrays.asList(
-				ManageBookButton, bookShelfCombo, changeUI, scrollPane,
-				progressBar, inputTodayPages, inputButton, deleteButton);
-		int red = Integer.valueOf(inputRed.getText());
-		int green = Integer.valueOf(inputGreen.getText());
-		int blue = Integer.valueOf(inputBlue.getText());
-		actionList.setBackGroundColor(BackGroundComponents, red, green, blue);
+		bookTitleLabel.setFont(new Font("メイリオ", Font.PLAIN, fontSize));
 	}
 
 	public void updateText(String bookID) {
 		adjustableFontSize(bookTitle);
 		remainPagesLabel.setText(mfc.setRemainPageLabel(bookID));
-		avgPAnsLabel.setText(mfc.setAvgPagesLabel(bookID));
-		sumDaysAnsLabel.setText("Total Days  " + mfc.getTotalDays(bookID) + "days");
+		avgPagesAnsLabel.setText(mfc.setAvgPagesLabel(bookID));
+		atThisPaceLabel.setText(mfc.setAtThisPaceLabel(bookID));
+		totalDaysAnsLabel.setText("読んだ日数  " + mfc.getTotalDays(bookID) + "日");
 		progressModel = mfc.reloadProgressModel(bookID, progressModel);
 		progressBar.setValue(mfc.setProgress(bookID));
 		progressLabel.setText(mfc.setProgressLabel(bookID));
 		panel.repaint();
 	}
-
 }

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
+import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -21,10 +22,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -53,6 +56,33 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         this.properties = new Properties();
     }
 
+    public String[] getLastBook() {
+        try {
+            properties.load(new InputStreamReader(new FileInputStream("bookmap.properties"), "UTF-8"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        String lastBookID = properties.getProperty("lastBookID");
+        String lastBookTitle = properties.getProperty("lastBookTitle");
+        String[] lastBookInfo = {lastBookID, lastBookTitle};
+
+        return lastBookInfo;
+    }
+
+    public void setlastBook(String bookID, String bookTitle) {
+        properties.setProperty("lastBookID", bookID);
+        properties.setProperty("lastBookTitle", bookTitle);
+        try {
+            properties.store(new OutputStreamWriter(new FileOutputStream("bookmap.properties"), "UTF-8"), null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*
+     * Swing component properties
+     */
     public DefaultComboBoxModel<BookInfo> setBookList() {
         this.jdao = new JsonDAO();
         bookInfoList = jdao.searchBookList();
@@ -79,30 +109,6 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         return comboModel;
     }
 
-    public String[] getLastBook() {
-        try {
-            properties.load(new InputStreamReader(new FileInputStream("bookmap.properties"), "UTF-8"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String lastBookID = properties.getProperty("lastBookID");
-        String lastBookTitle = properties.getProperty("lastBookTitle");
-        String[] lastBookInfo = {lastBookID, lastBookTitle};
-
-        return lastBookInfo;
-    }
-
-    public void setlastBook(String bookID, String bookTitle) {
-        properties.setProperty("lastBookID", bookID);
-        properties.setProperty("lastBookTitle", bookTitle);
-        try {
-            properties.store(new OutputStreamWriter(new FileOutputStream("bookmap.properties"), "UTF-8"), null);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public DefaultTableModel reloadProgressModel(String bookID, DefaultTableModel progressModel) {
         this.jdao = new JsonDAO();
         progressModel.setRowCount(0);
@@ -122,6 +128,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         progressDataTable.setForeground(new Color(15, 15, 15));
 
         progressDataTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		progressDataTable.getTableHeader().setReorderingAllowed(false);
 
         TableColumn pagesColumn = progressDataTable.getColumnModel().getColumn(0);
         TableColumn dateColumn = progressDataTable.getColumnModel().getColumn(1);
@@ -152,16 +159,25 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         return progressDataTable;
     }
 
+    /*
+     * Manage progress data
+     */
+
     public void addRecentData(String bookID, int bookId, int todayProgress) {
-        this.jdao = new JsonDAO();
+        //進捗データが0ページ以下なら処理終了
+        if (todayProgress <= 0) {
+            return;
+        }
+        
         // 現在時刻を取得
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy MM/dd");
         DateTimeFormatter ISO8601 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
-
+        
         String createdAt = ZonedDateTime.now(ZoneId.of("Asia/Tokyo")).format(ISO8601);
         String currentDate = ZonedDateTime.now(ZoneId.of("Asia/Tokyo")).format(dateFormat);
-
+        
         // 進捗データを追加
+        this.jdao = new JsonDAO();
         jdao.addProgressData(bookID, currentDate, todayProgress, createdAt);
     }
 
@@ -180,7 +196,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         if (currentPages > totalPages) {
             return "Finish!!";
         }
-        return " " + currentPages + "P / " + totalPages + "P";
+        return "<html>" + currentPages + "<font size='6'>P</font> / " + totalPages + "<font size='6'>P</font></html>";
     }
 
     public int getTotalDays(String bookID) {
@@ -198,16 +214,39 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         return sumDays;
     }
 
-    public String setAvgPagesLabel(String bookID) {
+    public int getAvgPages(String bookID) {
         this.jdao = new JsonDAO();
         int totalDays = getTotalDays(bookID);
         int currentPages = jdao.getCurrentPages(bookID);
-
         if (totalDays <= 0) {
-            return "0P / day";
+            return 0;
         } else {
-            int avgPages = currentPages / totalDays;
-            return String.valueOf(avgPages) + "P / day";
+            return currentPages / totalDays;
+        }
+    }
+    
+    public String setAvgPagesLabel(String bookID) {
+        int avgPages = getAvgPages(bookID);
+
+        if (avgPages <= 0) {
+            return "<html><font size='6'>0</font> P / 日</html>";
+        } else {
+            return "<html><font size='6'>" + String.valueOf(avgPages) + "</font> P <font size='4'>/</font> 日</html>";
+        }
+    }
+
+    public String setAtThisPaceLabel(String bookID) {
+        this.jdao = new JsonDAO();
+        int avgPages = getAvgPages(bookID);
+        int totalPages = jdao.getTotalPages(bookID);
+
+        if (avgPages <= 0) {
+            return "<html><font size='6'>0</font>日</html>";
+        } else if (totalPages / avgPages < 2) {
+            return "<html>あと <font size='6'> 1</font>日</html>";
+        } else {
+            return  "<html>あと <font size='6'>" 
+                    +(int) Math.ceil((double)totalPages / avgPages) + "</font>日</html>";
         }
     }
 
@@ -227,6 +266,20 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
 
     public String setProgressLabel(String bookID) {
         return setProgress(bookID) + "％";
+    }
+
+    public JLabel setTextProperties(JLabel label, int textPosition, int gap) {
+        label.setHorizontalTextPosition(textPosition);
+        label.setIconTextGap(gap);
+        return label;
+    }
+    
+    public JLabel setOriginalIcon(JLabel label, ImageIcon icon, int width, int height) {
+        Image image = icon.getImage();
+        Image resizedImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+        icon = new ImageIcon(resizedImage);
+        label.setIcon(icon);
+        return label;
     }
 
     public void changeFont(JComponent component, Font font) {

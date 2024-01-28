@@ -25,6 +25,28 @@ public class ActionList {
 	
 	}
 
+	// public void changeFontColor(List<Component> fontComponents) {
+		// List<Component> fontComponents = Arrays.asList(
+		// 		ManageBookButton, bookTitleLabel, bookShelfCombo, changeUI,
+		// 		remainPagesLabel, avgPagesAnsLabel, progressDataTable,
+		// 		inputTodayPages, inputButton, totalDaysAnsLabel, deleteButton);
+
+		// int red = Integer.valueOf(inputRed.getText());
+		// int green = Integer.valueOf(inputGreen.getText());
+		// int blue = Integer.valueOf(inputBlue.getText());
+		// setFontColor(fontComponents, red, green, blue);
+	// }
+
+	// public void changeBackGround(List<Component> BackGroundComponents) {
+		// List<Component> BackGroundComponents = Arrays.asList(
+		// 		ManageBookButton, bookShelfCombo, changeUI, scrollPane,
+		// 		progressBar, inputTodayPages, inputButton, deleteButton);
+		// int red = Integer.valueOf(inputRed.getText());
+		// int green = Integer.valueOf(inputGreen.getText());
+		// int blue = Integer.valueOf(inputBlue.getText());
+		// setBackGroundColor(BackGroundComponents, red, green, blue);
+	// }
+	
 	public void setFontColor(List<Component>  component,  int red, int green, int blue) {
 		for (Component comp : component) {
 		    comp.setForeground(new Color(red, green, blue));

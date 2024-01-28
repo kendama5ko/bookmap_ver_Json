@@ -97,7 +97,6 @@ public class ManageBooks {
 		bookListTable = new JTable(booksModel);
 		//copyOfBookListTable = new JTable(copyOfBooksModel);
 		tableSettings(bookListTable);
-
 		labelTimer = new LabelTimer();
 		booksModel.addTableModelListener(new TableModelListener() {
 			/*
@@ -109,6 +108,7 @@ public class ManageBooks {
 				if (e.getType() == TableModelEvent.UPDATE) {
 					mbController = new ManageBooksController(ManageBooks.this);
 					mbController.updatedProcess(e);
+					window.updateBookShlefCombo();
 					updateFrame();
 				}
 			}
@@ -170,7 +170,6 @@ public class ManageBooks {
 
 					// 選択された行とそのbook_idを特定
 					int modelRow = bookListTable.convertRowIndexToModel(selectedRow);
-					//int bookId = Integer.parseInt(booksModel.getValueAt(modelRow, 4).toString());
 					String bookTitle = booksModel.getValueAt(modelRow, 0).toString();
 					String bookID = booksModel.getValueAt(modelRow, 4).toString();
 
@@ -185,6 +184,8 @@ public class ManageBooks {
 					} else if (userAnswer == JOptionPane.NO_OPTION) {
 						return;
 					}
+				} else {
+					displayUpdatedMessage("削除したい本を選択してください"); 
 				}
 			}
 		});
@@ -336,6 +337,7 @@ public class ManageBooks {
 	public void tableSettings(JTable table) {
 		bookListTable.setAutoCreateRowSorter(true);
 		bookListTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		bookListTable.getTableHeader().setReorderingAllowed(false);
 		
 		DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
 		DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
@@ -401,7 +403,7 @@ public class ManageBooks {
 	public void displayUpdatedMessage(String updatedMessage) {
 		updatedMessageLabel.setText(updatedMessage);
 		updatedMessageLabel.setVisible(true);
-		timer = new Timer(5000, labelTimer);
+		timer = new Timer(4000, labelTimer);
 		timer.start();
 	}
 

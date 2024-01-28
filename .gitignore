@@ -18,6 +18,9 @@
 
 # Package Files #
 *.jar
+!jackson-annotations-2.16.1.jar
+!jackson-core-2.16.1.jar
+!jackson-databind-2.16.1.jar
 *.war
 *.nar
 *.ear

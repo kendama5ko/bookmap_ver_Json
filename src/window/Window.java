@@ -34,9 +34,13 @@ public abstract class Window {
 	protected JButton deleteButton;
 	protected JButton changeUI;
 	protected JLabel bookTitleLabel;
-	protected JLabel sumDaysAnsLabel;
+	protected JLabel bookmarkIconLabel;
+	protected JLabel totalDaysAnsLabel;
 	protected JLabel remainPagesLabel;
-	protected JLabel avgPAnsLabel;
+	protected JLabel avgPagesAnsLabel;
+	protected JLabel averageIconLabel;
+	protected JLabel calendarIconLabel;
+	protected JLabel atThisPaceLabel;
 	protected JLabel progressLabel;
 	protected JTable progressDataTable = new JTable();
 	protected JTextField inputTodayPages;
