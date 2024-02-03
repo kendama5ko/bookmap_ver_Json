@@ -140,22 +140,16 @@ public class JsonDAO {
         writeToJsonFile(node);
         return updatedMessage(columnName);
     }
-
     private String updatedMessage(String columnName) {
-        switch (columnName) {
-            case "タイトル":
-                return "タイトルが変更されました。";
-            case "著者":
-                return "著者名が変更されました";
-            case "ジャンル":
-                return "ジャンル名が変更されました";
-            case "ページ数":
-                return "ページ数が変更されました";
-            default:
-                return columnName;
-        }
+        return switch (columnName) {
+            case "タイトル" -> "タイトルが変更されました。";
+            case "著者" -> "著者名が変更されました";
+            case "ジャンル" -> "ジャンル名が変更されました";
+            case "ページ数" -> "ページ数が変更されました";
+            default -> columnName;
+        };
     }
-
+    
     public void deleteProgressData(String bookID, long createdAt) {
         // 進捗データから選択した行を削除
         // arrayProgressDataNode = (ArrayNode) node.get("本棚").get(0).get("進捗データ");
