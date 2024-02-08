@@ -140,14 +140,14 @@ public class MainFrame extends Window {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				bookTitle = String.valueOf(bookShelfCombo.getSelectedItem());
-				BookInfo selectedBook = (BookInfo) bookShelfCombo.getSelectedItem();
-				// JComboBoxが未選択(null)でないことを確認してからIDを取得
-				if (selectedBook != null) {
-					bookID = selectedBook.getID();
-					bookTitle = selectedBook.getTitle();
-				} else {
-					bookTitle = "";
+				BookInfo bookInfo = actionList.bookShelfComboAction(bookShelfCombo);
+				String tempBookID = bookInfo.getID();
+				String tempBookTitle = bookInfo.getTitle();
+
+				// 本が選択されている時にupdateが行われた場合、引き続き選択する
+				if (!tempBookID.equals("")) {
+					bookID = tempBookID;
+					bookTitle = tempBookTitle;
 				}
 				updateText(bookID);
 			}
