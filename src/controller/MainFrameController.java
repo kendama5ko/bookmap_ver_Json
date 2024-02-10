@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
 import java.awt.Image;
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,7 +28,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
@@ -188,6 +188,13 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
     /*
      * setText Label, Button
      */
+    public void setGridPosition(GridBagConstraints gbc, int x, int y, double weightx, double weighty)  {
+        gbc.gridx = x;
+		gbc.gridy = y;
+		gbc.weightx = weightx;
+        gbc.weighty = weighty;
+    }
+    
     public String setRemainPageLabel(String bookID) {
         this.jdao = new JsonDAO();
         int currentPages = jdao.getCurrentPages(bookID);
