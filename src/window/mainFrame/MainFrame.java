@@ -188,7 +188,7 @@ public class MainFrame extends Window {
 		scrollPane = new JScrollPane(progressDataTable);
 		scrollPane.setPreferredSize(new Dimension(150, 140));
 		scrollPane.setBackground(new Color(225, 238, 251));
-		
+
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		mfc.setGridPosition(gbc_scrollPane, 2, 2, 1.0, 1.0);
 		gbc_scrollPane.insets = new Insets(0, 10, 5, 5);
@@ -204,7 +204,7 @@ public class MainFrame extends Window {
 		progressLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		progressLabel.setFont(new Font("メイリオ", Font.PLAIN, 34));
 		progressLabel.setForeground(new Color(40, 40, 40));
-		
+
 		GridBagConstraints gbc_progressLabel = new GridBagConstraints();
 		mfc.setGridPosition(gbc_progressLabel, 4, 4, 1.0, 1.0);
 		gbc_progressLabel.insets = new Insets(0, 10, 5, 5);
@@ -219,7 +219,7 @@ public class MainFrame extends Window {
 		progressBar.setBackground(new Color(250, 250, 255));
 		progressBar.setForeground(new Color(40, 150, 243));
 		progressBar.setFont(new Font("MS UI Gothic", Font.PLAIN, 36));
-		
+
 		GridBagConstraints gbc_progressBar = new GridBagConstraints();
 		mfc.setGridPosition(gbc_progressBar, 4, 2, 1.0, 1.0);
 		gbc_progressBar.insets = new Insets(0, 5, 8, 5);
@@ -267,7 +267,7 @@ public class MainFrame extends Window {
 		averageIconLabel = new JLabel();
 		ImageIcon averageIcon = new ImageIcon("lib/images/studying.png");
 		mfc.setOriginalIcon(averageIconLabel, averageIcon, 42, 35);
-		
+
 		GridBagConstraints gbc_averageIconLabel = new GridBagConstraints();
 		mfc.setGridPosition(gbc_averageIconLabel, 1, 4, 1.0, 1.0);
 		gbc_averageIconLabel.insets = new Insets(0, 30, 4, 5);
@@ -368,10 +368,12 @@ public class MainFrame extends Window {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (inputTodayPages.getText() == null || inputTodayPages.getText().equals("")) {
+				String inputtedText = inputTodayPages.getText();
+
+				if (inputtedText == null || inputtedText.equals("")) {
 					return;
 				} else {
-					todayProgress = Integer.valueOf(inputTodayPages.getText());
+					todayProgress = Integer.valueOf(inputtedText);
 					mfc.addRecentData(bookID, bookId, todayProgress);
 					inputTodayPages.setText(null);
 				}
@@ -404,18 +406,14 @@ public class MainFrame extends Window {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int selectedRow = progressDataTable.getSelectedRow();
-				if (selectedRow != -1) {
 
-					// 選択された行からcreatedAtを取得
-					long createdAt = (long) progressDataTable.getValueAt(selectedRow, 2);
-
-					// 本当に削除しますか？のポップアップ
-					int userAnswer = JOptionPane.showConfirmDialog(null,
-							"選択された進捗データを本当に削除しますか？", "注意", JOptionPane.YES_NO_OPTION,
-							JOptionPane.WARNING_MESSAGE);
-					if (userAnswer == JOptionPane.YES_OPTION) {
-						mfc.deleteSelectedData(bookID, createdAt);
-					}
+				// 本当に削除しますか？のポップアップ
+				// 必ずselectedRowを先に置く　理由:ポップアップが選択していなくても出るようになるため
+				if (selectedRow != -1 && actionList.userAnswerIsYes()) {
+					long createdAt = actionList.getCreatedAt(progressDataTable, selectedRow);
+					
+					// データの削除と表示の更新
+					mfc.deleteSelectedData(bookID, createdAt);
 					mfc.reloadProgressModel(bookID, progressModel);
 					updateText(bookID);
 				}

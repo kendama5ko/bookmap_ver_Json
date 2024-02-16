@@ -56,6 +56,9 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         this.properties = new Properties();
     }
 
+    /*
+     * 前回終了時に表示していた本の取得
+     */
     public String[] getLastBook() {
         try {
             properties.load(new InputStreamReader(new FileInputStream("bookmap.properties"), "UTF-8"));
@@ -70,6 +73,9 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         return lastBookInfo;
     }
 
+    /*
+     * 最後に表示した本を記憶
+     */
     public void setlastBook(String bookID, String bookTitle) {
         properties.setProperty("lastBookID", bookID);
         properties.setProperty("lastBookTitle", bookTitle);

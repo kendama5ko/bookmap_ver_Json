@@ -5,6 +5,8 @@ import java.awt.Component;
 import java.util.List;
 
 import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
 
 import window.Window;
 import window.mainFrame.BookInfo;
@@ -73,7 +75,29 @@ public class ActionList {
 		for (Component comp : component) {
 			comp.setBackground(new Color(red, green, blue));
 		}
+	}
 
+	/*
+	 * 選択された行からcreatedAtを取得（エポックミリ秒）
+	 */
+	public long getCreatedAt(JTable progressDataTable, int selectedRow) {
+		long createdAt = 0;
+		
+		createdAt = (long) progressDataTable.getValueAt(selectedRow, 2);
+		return createdAt;
+	}
+
+	/*
+	 * ポップアップウィンドウのYes or No
+	 */
+	public boolean userAnswerIsYes() {
+		int userAnswer = JOptionPane.showConfirmDialog(null,
+		"選択された進捗データを本当に削除しますか？", "注意", JOptionPane.YES_NO_OPTION,
+		JOptionPane.WARNING_MESSAGE);
+		if (userAnswer == JOptionPane.YES_OPTION) {
+			return true;
+		}
+		return false;
 	}
 
 }
