@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -16,6 +18,11 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+/**
+ * Controllerクラスからの処理を受け取り、Jsonファイルの読み書きを行います。
+ * 
+ * @version 1.0
+ */
 public class JsonDAO {
     private File dataFile;
     private ObjectMapper mapper;
@@ -27,7 +34,12 @@ public class JsonDAO {
     ArrayNode arraybookShelfNode;
     ArrayNode arrayProgressDataNode;
     JsonNode checkNode;
-
+    int counter = 0;
+    int failedCounter = 0;
+    /*
+     * JsonDAOクラスの新しいインスタンスを生成します。
+     * ファイルパスを設定し、ObjectMapperで読み込み、JsonNodeに変換します。
+     */
     public JsonDAO() {
         this.dataFile = Paths.get("lib/data/testData.json").toFile();
         this.mapper = new ObjectMapper();
@@ -41,6 +53,11 @@ public class JsonDAO {
         this.bookShelfNode = node.get("本棚");
     }
 
+    /**
+     * 引数として渡されたJsonNodeをJSONファイルに書き込みます。
+     * 
+     * @param node
+     */
     public void writeToJsonFile(JsonNode node) {
         try {
             // 更新されたJSONデータをファイルに書き込む
@@ -50,17 +67,34 @@ public class JsonDAO {
         }
     }
 
+    /**
+     * 指定された書籍IDに関連する進捗データノードを取得します。
+     * 
+     * @param bookID
+     * @return 指定された書籍IDに関連する進捗データノード
+     */
     public JsonNode getProgressDataNode(String bookID) {
+
         for (JsonNode bookNode : bookShelfNode) {
             String tempID = bookNode.get("ID").asText();
             if (tempID.equals(bookID)) {
                 progressDataNode = bookNode.get("進捗データ");
+                //counter++;
+                System.out.println("Success: " + ++counter);
                 return progressDataNode;
+            } else {
+                //failedCounter++;
+                System.out.println("failed : " + ++failedCounter);
             }
         }
         return mapper.createObjectNode();
     }
 
+    /**
+     * 書籍情報のリストを検索し、各書籍の情報をMapのリストとして返します。
+     * 
+     * @return 書籍情報のMapのリスト
+     */
     public List<Map<String, String>> searchBookList() {
         List<Map<String, String>> bookInfoList = new ArrayList<>();
 
@@ -76,6 +110,13 @@ public class JsonDAO {
         return bookInfoList;
     }
 
+    /**
+     * 指定された書籍IDに関連する進捗データを読み込み、DefaultTableModelにデータをセットします。
+     * 
+     * @param bookID        書籍ID
+     * @param progressModel データをセットするDefaultTableModel
+     * @return データがセットされたDefaultTableModel
+     */
     public DefaultTableModel setDataFromJson(String bookID, DefaultTableModel progressModel) {
         progressDataNode = getProgressDataNode(bookID);
         DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
@@ -94,12 +135,17 @@ public class JsonDAO {
                 Instant createdAtInstant = offsetDateTime.toInstant();
                 long createdAtTimestamp = createdAtInstant.toEpochMilli();
 
-                progressModel.addRow(new Object[] { pageCount, date, createdAtTimestamp });
+                progressModel.addRow(new Object[] { pageCount, date, createdAtTimestamp, bookID});
             }
         }
         return progressModel;
     }
 
+    /**
+     * 新規の書籍情報をJSONファイルに追加します。
+     * 
+     * @param bookInfoMap 書籍情報のMap
+     */
     public void addBookToJson(Map<String, String> bookInfoMap) {
         arraybookShelfNode = (ArrayNode) bookShelfNode;
 
@@ -113,6 +159,14 @@ public class JsonDAO {
         writeToJsonFile(node);
     }
 
+    /**
+     * 指定された書籍IDの新規の進捗データをJSONファイルに追加します。
+     * 
+     * @param bookID        書籍ID
+     * @param currentDate   現在の日付
+     * @param todayProgress 本日の進捗ページ数
+     * @param createdAt     作成日時
+     */
     public void addProgressData(String bookID, String currentDate, int todayProgress, String createdAt) {
         arrayProgressDataNode = (ArrayNode) getProgressDataNode(bookID);
 
@@ -125,6 +179,65 @@ public class JsonDAO {
         writeToJsonFile(node);
     }
 
+    public String getCurrentDate() {
+              // 現在時刻を取得
+        DateTimeFormatter ISO8601 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
+        String createdAt = ZonedDateTime.now(ZoneId.of("Asia/Tokyo")).format(ISO8601);
+
+        return createdAt;
+    }
+    /**
+     * カレンダーから日付を編集して進捗データを更新します。
+     * 
+     * @param bookID     書籍ID
+     * @param editedData 編集後の日付データ
+     */
+    // public void editProgressDataFromCalendar(String bookID, String editedData) {
+    //     progressDataNode = getProgressDataNode(bookID);
+
+    //     for (JsonNode dateNode : progressDataNode) {
+    //         String tempID = dateNode.get("ID").asText();
+
+    //         // 更新したい本のノードを見つけたらタイトルを書き換える
+    //         if (tempID.equals(bookID)) {
+    //             ((ObjectNode) dateNode).put("日付", editedData);
+    //             ((ObjectNode) dateNode).put("created_at", editedData);
+    //             break;
+    //         }
+    //     }
+    //     writeToJsonFile(node);
+    // }
+    public void editProgressDataFromCalendar(String bookID, Long createdAtLong, String editedData) {
+        arrayProgressDataNode = (ArrayNode) getProgressDataNode(bookID);
+
+        for (JsonNode PDNode : arrayProgressDataNode) {
+            String createdAtString = PDNode.get("created_at").asText();
+            Instant createdAtInstant = Instant.parse(createdAtString);
+            long originalCreatedAt = createdAtInstant.toEpochMilli();
+            System.out.println("編集前 : " + originalCreatedAt);
+            System.out.println("編集後 : " + createdAtLong);
+
+            String createdAt = getCurrentDate(); 
+            if (originalCreatedAt == createdAtLong) {
+                
+                // 更新したい本のノードを見つけたらタイトルを書き換える
+                ((ObjectNode) PDNode).put("日付", editedData);
+                ((ObjectNode) PDNode).put("created_at", createdAt);
+            }
+        }
+        writeToJsonFile(node);
+    }
+
+
+    /**
+     * ManageFrameの本棚の編集。
+     * 指定された書籍IDに関連する書籍データの特定の列を編集します。
+     * 
+     * @param bookID     書籍ID
+     * @param columnName 編集する列の名前
+     * @param editedData 編集後のデータ
+     * @return 列の名前に応じた更新完了のメッセージ
+     */
     public String editBookData(String bookID, String columnName, String editedData) {
         arraybookShelfNode = (ArrayNode) node.get("本棚");
 
@@ -140,6 +253,13 @@ public class JsonDAO {
         writeToJsonFile(node);
         return updatedMessage(columnName);
     }
+
+    /**
+     * 更新された列の名前に応じて適切な更新メッセージを返します。
+     * 
+     * @param columnName 列名
+     * @return 更新メッセージ
+     */
     private String updatedMessage(String columnName) {
         return switch (columnName) {
             case "タイトル" -> "タイトルが変更されました。";
@@ -149,7 +269,14 @@ public class JsonDAO {
             default -> columnName;
         };
     }
-    
+
+    /**
+     * 指定された書籍IDと作成日時に基づいて進捗データを削除します。
+     * MainFrameの進捗を1件削除する
+     * 
+     * @param bookID    書籍ID
+     * @param createdAt 作成日時
+     */
     public void deleteProgressData(String bookID, long createdAt) {
         // 進捗データから選択した行を削除
         // arrayProgressDataNode = (ArrayNode) node.get("本棚").get(0).get("進捗データ");
@@ -169,6 +296,12 @@ public class JsonDAO {
         writeToJsonFile(node);
     }
 
+    /**
+     * 指定された書籍IDに関連する現在のページ数を取得します。
+     * 
+     * @param bookID 書籍ID
+     * @return 現在のページ数
+     */
     public int getCurrentPages(String bookID) {
         int currentPages = 0;
         progressDataNode = getProgressDataNode(bookID);
@@ -182,6 +315,12 @@ public class JsonDAO {
         return currentPages;
     }
 
+    /**
+     * 指定された書籍IDに関連する総ページ数を取得します。
+     * 
+     * @param bookID 書籍ID
+     * @return 総ページ数
+     */
     public int getTotalPages(String bookID) {
         int totalPages = 0;
         for (JsonNode book : bookShelfNode) {
@@ -192,6 +331,13 @@ public class JsonDAO {
         return totalPages;
     }
 
+    /**
+     * 指定された書籍IDに記録されている全ての日付のリストを取得します。
+     * MainFrameControllerのgetTotalDaysで、読んだ日の合計の日数を計算するため。
+     * 
+     * @param bookID 書籍ID
+     * @return 日付のリスト
+     */
     public List<String> getDates(String bookID) {
         List<String> dates = new ArrayList<>();
         progressDataNode = getProgressDataNode(bookID);
@@ -205,6 +351,12 @@ public class JsonDAO {
         return dates;
     }
 
+    /**
+     * 指定された書籍IDに関連する書籍データを削除します。
+     * ManageBooksにある本棚から1件削除
+     * 
+     * @param bookID 書籍ID
+     */
     public void deleteBook(String bookID) {
         this.bookShelfNode = node.get("本棚");
         arraybookShelfNode = (ArrayNode) bookShelfNode;
