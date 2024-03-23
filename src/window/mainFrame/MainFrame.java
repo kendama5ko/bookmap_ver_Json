@@ -32,6 +32,7 @@ import javax.swing.table.TableCellRenderer;
 //import javax.swing.UIManager;
 
 import controller.ActionList;
+import controller.CalendarDialog;
 import controller.MainFrameController;
 import window.Window;
 
@@ -180,6 +181,11 @@ public class MainFrame extends Window {
 				return toolTip;
 			}
 		};
+
+		CalendarDialog calendar = new CalendarDialog(progressDataTable);
+		calendar.onDateSelected(progressDataTable);
+		calendar.onDateColumnSelected(progressDataTable);
+		
 		progressDataTable = mfc.progressDataTableSettings(progressDataTable);
 		// progressDataTable.getTableHeader().setFont(mainFont);
 		JTableHeader progressDataHeader = progressDataTable.getTableHeader(); // changeFontでフォントを一括で変更するため

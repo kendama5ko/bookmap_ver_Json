@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -122,9 +123,14 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
 
         // timestampで降順にソート
         Collections.sort(progressModel.getDataVector(), (o1, o2) -> {
-            Long rowNumber1 = (Long) o1.get(2); //created_atはcolumn3なのでindex2を指定
-            Long rowNumber2 = (Long) o2.get(2);
-            return rowNumber2.compareTo(rowNumber1);
+            // Long rowNumber1 = (Long) o1.get(2); //created_atはcolumn3なのでindex2を指定
+            // Long rowNumber2 = (Long) o2.get(2);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM/dd");
+            String dateString1 = (String)o1.get(1);
+            String dateString2 = (String)o2.get(1);
+            LocalDate date1 = LocalDate.parse(dateString1, formatter);
+            LocalDate date2 = LocalDate.parse(dateString2, formatter);
+            return date2.compareTo(date1);
         });
         return progressModel;
     }
@@ -169,7 +175,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
      * Manage progress data
      */
 
-    public void addRecentData(String bookID, int bookId, int todayProgress) {
+    public void addRecentData(String bookID, int todayProgress) {
         //進捗データが0ページ以下なら処理終了
         if (todayProgress <= 0) {
             return;
