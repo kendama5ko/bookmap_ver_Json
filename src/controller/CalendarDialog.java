@@ -11,7 +11,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
+import java.beans.PropertyChangeListener;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.EventObject;
@@ -58,25 +59,17 @@ public class CalendarDialog {
      */
     public void onDateSelected(DefaultTableModel progressModel) {
         calendar.getDayChooser().addPropertyChangeListener("day", evt -> {
-            this.jdao = new JsonDAO();
 
             // 日付を取得し、フォーマットの形式に変換
             Date selectedDate = calendar.getDate();
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy MM/dd");
             String formattedDate = dateFormat.format(selectedDate);
-            
+
             // 選択された日付を JTable のセルにセット
             int selectedRow = progressDataTable.getSelectedRow();
             int selectedColumn = progressDataTable.getSelectedColumn();
-            
-            // 本のIDを取得
-            String bookID = (String) progressDataTable.getValueAt(selectedRow, 3);
-            Long createdAtLong = (Long) progressDataTable.getValueAt(selectedRow, 2);
-
-            //progressDataTable.setValueAt(formattedDate, selectedRow, selectedColumn);
             progressModel.setValueAt(formattedDate, selectedRow, selectedColumn);
 
-            jdao.editProgressDataFromCalendar(bookID, createdAtLong, formattedDate);
             // [重要] 編集状態を解除する（これをしないと編集状態のままになり、日付が入らない）
             progressDataTable.removeEditor();
             dialog.dispose();
@@ -91,92 +84,115 @@ public class CalendarDialog {
         TableColumn dateColumn = progressDataTable.getColumnModel().getColumn(1);
 
         dateColumn.setCellEditor(new TableCellEditor() {
-			@Override
-			public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
-					int column) {
-				// セルが編集中の場合のみ表示する
-				if (isSelected) {
-					// 日付を編集中にセルに表示されるテキスト
-					editingLabel.setText("日付を選択");
-					editingLabel.setHorizontalAlignment(JLabel.CENTER);
-					return editingLabel;
+            @Override
+            public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row,
+                    int column) {
+                // // JCalendarを指定した日付で開く
+                String selectedData = (String) table.getValueAt(row, column);
 
-					// 編集中でない場合は何も表示しない
-				} else {
-					return null;
-				}
-			}
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy MM/dd");
+                Date date = null;
+                try {
+                    date = dateFormat.parse(selectedData);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                // イベントリスナーを一時的に削除
+                PropertyChangeListener[] listeners = calendar.getDayChooser().getPropertyChangeListeners();
+                for (PropertyChangeListener listener : listeners) {
+                    calendar.getDayChooser().removePropertyChangeListener(listener);
+                }
 
-			@Override
-			public Object getCellEditorValue() {
-				return null;
-			}
+                calendar.setDate(date);
 
-			@Override
-			public boolean isCellEditable(EventObject anEvent) {
-				return true;
-			}
+                // イベントリスナーを再追加
+                for (PropertyChangeListener listener : listeners) {
+                    calendar.getDayChooser().addPropertyChangeListener(listener);
+                }
 
-			@Override
-			public boolean shouldSelectCell(EventObject anEvent) {
-				return true;
-			}
+                // セルが編集中の場合のみ表示する
+                if (isSelected) {
+                    // 日付を編集中にセルに表示されるテキスト
+                    editingLabel.setText("日付を選択");
+                    editingLabel.setHorizontalAlignment(JLabel.CENTER);
+                    return editingLabel;
 
-			@Override
-			public boolean stopCellEditing() {
-				dialog.dispose(); // ダイアログを閉じる
-				progressDataTable.removeEditor();
-				return true;
-			}
+                    // 編集中でない場合は何も表示しない
+                } else {
+                    return null;
+                }
+            }
 
-			@Override
-			public void cancelCellEditing() {
-				dialog.dispose(); // ダイアログを閉じる
-			}
+            @Override
+            public Object getCellEditorValue() {
+                return null;
+            }
 
-			@Override
-			public void addCellEditorListener(CellEditorListener l) {
-			}
+            @Override
+            public boolean isCellEditable(EventObject anEvent) {
+                return true;
+            }
 
-			@Override
-			public void removeCellEditorListener(CellEditorListener l) {
-			}
-		});
+            @Override
+            public boolean shouldSelectCell(EventObject anEvent) {
+                return true;
+            }
+
+            @Override
+            public boolean stopCellEditing() {
+                dialog.dispose(); // ダイアログを閉じる
+                progressDataTable.removeEditor();
+                return true;
+            }
+
+            @Override
+            public void cancelCellEditing() {
+                dialog.dispose(); // ダイアログを閉じる
+            }
+
+            @Override
+            public void addCellEditorListener(CellEditorListener l) {
+            }
+
+            @Override
+            public void removeCellEditorListener(CellEditorListener l) {
+            }
+        });
 
         return dateColumn;
     }
-public void openCalendarSetting() {
-    progressDataTable.addMouseListener(new MouseAdapter() {
-        public void mouseReleased(MouseEvent e) {
-            int selectedRow = progressDataTable.rowAtPoint(e.getPoint());
-            int selectedColumn = progressDataTable.columnAtPoint(e.getPoint());
-            // カラム1がクリックされたときだけ処理を実行
-            if (selectedColumn == 1) {
-                // クリックされたセルを編集状態にする
-                progressDataTable.editCellAt(selectedRow, selectedColumn);
-                // クリックされた少し左上にdailogを表示
-                int x = e.getXOnScreen() + 5;
-                int y = e.getYOnScreen() - 305;
-                // GraphicsDevice gd = frame.getGraphicsConfiguration().getDevice();
-                // int width = gd.getDisplayMode().getWidth();
-                // int height = gd.getDisplayMode().getHeight();
 
-                // 画面上部や左にdialogが見切れないようにする
-                if (e.getXOnScreen() < 350) {
-                    x = 0;
-                }
-                if (e.getYOnScreen() < 305) {
-                    y = 0;
-                }
-                dialog.setLocation(x, y);
-                dialog.setVisible(true);
+    public void openCalendarSetting() {
+        progressDataTable.addMouseListener(new MouseAdapter() {
+            public void mouseReleased(MouseEvent e) {
+                int selectedRow = progressDataTable.rowAtPoint(e.getPoint());
+                int selectedColumn = progressDataTable.columnAtPoint(e.getPoint());
+                // カラム1がクリックされたときだけ処理を実行
+                if (selectedColumn == 1) {
+                    // クリックされたセルを編集状態にする
+                    progressDataTable.editCellAt(selectedRow, selectedColumn);
+                    // クリックされた少し左上にdailogを表示
+                    int x = e.getXOnScreen() + 5;
+                    int y = e.getYOnScreen() - 305;
+                    // GraphicsDevice gd = frame.getGraphicsConfiguration().getDevice();
+                    // int width = gd.getDisplayMode().getWidth();
+                    // int height = gd.getDisplayMode().getHeight();
 
-            } else if (selectedColumn != 1) {
-                dialog.dispose();
+                    // 画面上部や左にdialogが見切れないようにする
+                    if (e.getXOnScreen() < 350) {
+                        x = 0;
+                    }
+                    if (e.getYOnScreen() < 305) {
+                        y = 0;
+                    }
+                    dialog.setLocation(x, y);
+                    dialog.setVisible(true);
+
+                } else if (selectedColumn != 1) {
+                    dialog.dispose();
+                }
             }
-        }
-    });
-}
-
+        });
+    }
 
 }
