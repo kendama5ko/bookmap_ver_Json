@@ -7,6 +7,8 @@ import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableColumn;
 
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
@@ -28,6 +30,9 @@ public class CalendarDialog {
     private JCalendar calendar;
     private JLabel editingLabel;
     private JTable progressDataTable;
+    private int dialogX = 0;
+    private int dialogY = 0;
+    private boolean wasMoved;
 
     public CalendarDialog(JTable progressDataTable) {
         initializeUI(progressDataTable);
@@ -52,6 +57,14 @@ public class CalendarDialog {
                 progressDataTable.removeEditor();
             }
         });
+
+        // ダイアログが移動した時に座標を記憶
+        dialog.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentMoved(ComponentEvent e) {
+                saveDialogPosition();
+            }
+        });
     }
 
     /*
@@ -72,7 +85,7 @@ public class CalendarDialog {
 
             // [重要] 編集状態を解除する（これをしないと編集状態のままになり、日付が入らない）
             progressDataTable.removeEditor();
-            dialog.dispose();
+            //dialog.dispose();
         });
     }
 
@@ -111,12 +124,11 @@ public class CalendarDialog {
                 }
 
                 // セルが編集中の場合のみ表示する
-                if (isSelected) {
+                if (isSelected || table.isCellSelected(row, column)) {
                     // 日付を編集中にセルに表示されるテキスト
                     editingLabel.setText("日付を選択");
                     editingLabel.setHorizontalAlignment(JLabel.CENTER);
                     return editingLabel;
-
                     // 編集中でない場合は何も表示しない
                 } else {
                     return null;
@@ -140,6 +152,7 @@ public class CalendarDialog {
 
             @Override
             public boolean stopCellEditing() {
+                saveDialogPosition();
                 dialog.dispose(); // ダイアログを閉じる
                 progressDataTable.removeEditor();
                 return true;
@@ -164,30 +177,32 @@ public class CalendarDialog {
 
     public void openCalendarSetting() {
         progressDataTable.addMouseListener(new MouseAdapter() {
-            public void mouseReleased(MouseEvent e) {
-                int selectedRow = progressDataTable.rowAtPoint(e.getPoint());
+            public void mousePressed(MouseEvent e) {
                 int selectedColumn = progressDataTable.columnAtPoint(e.getPoint());
+
                 // カラム1がクリックされたときだけ処理を実行
-                if (selectedColumn == 1) {
-                    // クリックされたセルを編集状態にする
-                    progressDataTable.editCellAt(selectedRow, selectedColumn);
-                    // クリックされた少し左上にdailogを表示
-                    int x = e.getXOnScreen() + 5;
-                    int y = e.getYOnScreen() - 305;
-                    // GraphicsDevice gd = frame.getGraphicsConfiguration().getDevice();
-                    // int width = gd.getDisplayMode().getWidth();
-                    // int height = gd.getDisplayMode().getHeight();
-
-                    // 画面上部や左にdialogが見切れないようにする
-                    if (e.getXOnScreen() < 350) {
-                        x = 0;
-                    }
-                    if (e.getYOnScreen() < 305) {
-                        y = 0;
-                    }
-                    dialog.setLocation(x, y);
+                if (selectedColumn == 1 && wasMoved) { // 
+                    saveDialogPosition();
+                    dialog.setLocation(dialogX, dialogY);
                     dialog.setVisible(true);
+                } else if (selectedColumn == 1 && !wasMoved) {
 
+                    // クリックされた少し左上にdailogを表示
+                    dialogX = e.getXOnScreen() + 40;
+                    dialogY = e.getYOnScreen() - 105;
+                    GraphicsDevice gd = progressDataTable.getGraphicsConfiguration().getDevice();
+                    int width = gd.getDisplayMode().getWidth();
+                    
+                    // 画面上部や左にdialogが見切れないようにする
+                    if (dialogX > width - 340) {
+                        dialogX = width - 340;
+                    }
+                    if (dialogY < 0) {
+                        dialogY = 0;
+                    }
+                    dialog.setLocation(dialogX, dialogY);
+                    dialog.setVisible(true);
+                    
                 } else if (selectedColumn != 1) {
                     dialog.dispose();
                 }
@@ -195,4 +210,13 @@ public class CalendarDialog {
         });
     }
 
+    public void saveDialogPosition() {
+        this.dialogX = dialog.getLocation().x;
+        this.dialogY = dialog.getLocation().y;
+        wasMoved = true;
+    }
+
+    public void dialogDispose() {
+        dialog.dispose();
+    }
 }

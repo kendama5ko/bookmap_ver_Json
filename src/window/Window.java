@@ -18,6 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 import controller.ActionList;
+import controller.CalendarDialog;
 import controller.MainFrameController;
 import window.mainFrame.BookInfo;
 import window.subFrame.ManageBooks;
@@ -33,6 +34,7 @@ public abstract class Window {
 	protected JButton inputButton;
 	protected JButton deleteButton;
 	protected JButton changeUI;
+	protected CalendarDialog calendarDialog;
 	protected JLabel bookTitleLabel;
 	protected JLabel bookmarkIconLabel;
 	protected JLabel totalDaysAnsLabel;

@@ -11,12 +11,18 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.EventObject;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -26,15 +32,24 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.CellEditorListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
 //import javax.swing.UIManager;
+import javax.swing.table.TableColumn;
 
 import controller.ActionList;
 import controller.CalendarDialog;
 import controller.MainFrameController;
+import dao.JsonDAO;
 import window.Window;
+
+import com.fasterxml.jackson.databind.deser.std.JdkDeserializers;
+import com.toedter.calendar.JCalendar;
 
 public class MainFrame extends Window {
 
@@ -173,6 +188,26 @@ public class MainFrame extends Window {
 		progressModel.addColumn("日付");
 		progressModel.addColumn("ID");
 		progressModel = mfc.reloadProgressModel(bookID, progressModel);
+		progressModel.addTableModelListener(new TableModelListener() {
+			
+			@Override
+			public void tableChanged(TableModelEvent e) {
+				if (e.getType() == TableModelEvent.UPDATE) {
+					int row = e.getFirstRow();
+					int column = e.getColumn();
+					Object editedDataObject = progressModel.getValueAt(row, column);
+					String columnName = progressModel.getColumnName(column);
+					Long createdAtLong = (Long) progressModel.getValueAt(row, 2);
+					
+					if (columnName.equals("ページ数")) {
+						mfc.updateData(bookID, columnName, editedDataObject);
+					} else if (columnName.equals("日付")) {
+						mfc.updateData(bookID, createdAtLong, editedDataObject);
+					}
+					updateText(bookID);
+				}
+			}
+		});
 		progressDataTable = new JTable(progressModel) {
 			@Override
 			public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
@@ -181,12 +216,8 @@ public class MainFrame extends Window {
 				return toolTip;
 			}
 		};
-
-		CalendarDialog calendar = new CalendarDialog(progressDataTable);
-		calendar.onDateSelected(progressDataTable);
-		calendar.onDateColumnSelected(progressDataTable);
-		
 		progressDataTable = mfc.progressDataTableSettings(progressDataTable);
+
 		// progressDataTable.getTableHeader().setFont(mainFont);
 		JTableHeader progressDataHeader = progressDataTable.getTableHeader(); // changeFontでフォントを一括で変更するため
 		panel.add(progressDataHeader);
@@ -194,6 +225,15 @@ public class MainFrame extends Window {
 		scrollPane = new JScrollPane(progressDataTable);
 		scrollPane.setPreferredSize(new Dimension(150, 140));
 		scrollPane.setBackground(new Color(225, 238, 251));
+		
+
+		/*
+		 * カレンダーの表示に関する設定
+		 */
+		calendarDialog = new CalendarDialog(progressDataTable);
+		calendarDialog.onDateSelected(progressModel);
+		calendarDialog.onDateColumnSelected();
+		calendarDialog.openCalendarSetting();
 
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		mfc.setGridPosition(gbc_scrollPane, 2, 2, 1.0, 1.0);
@@ -380,7 +420,7 @@ public class MainFrame extends Window {
 					return;
 				} else {
 					todayProgress = Integer.valueOf(inputtedText);
-					mfc.addRecentData(bookID, bookId, todayProgress);
+					mfc.addRecentData(bookID, todayProgress);
 					inputTodayPages.setText(null);
 				}
 				mfc.reloadProgressModel(bookID, progressModel);
@@ -414,10 +454,10 @@ public class MainFrame extends Window {
 				int selectedRow = progressDataTable.getSelectedRow();
 
 				// 本当に削除しますか？のポップアップ
-				// 必ずselectedRowを先に置く　理由:ポップアップが選択していなくても出るようになるため
+				// 必ずselectedRowを先に置く 理由:ポップアップが選択していなくても出るようになるため
 				if (selectedRow != -1 && actionList.userAnswerIsYes()) {
 					long createdAt = actionList.getCreatedAt(progressDataTable, selectedRow);
-					
+
 					// データの削除と表示の更新
 					mfc.deleteSelectedData(bookID, createdAt);
 					mfc.reloadProgressModel(bookID, progressModel);
@@ -479,5 +519,6 @@ public class MainFrame extends Window {
 		progressBar.setValue(mfc.setProgress(bookID));
 		progressLabel.setText(mfc.setProgressLabel(bookID));
 		panel.repaint();
+		calendarDialog.dialogDispose();
 	}
 }

@@ -11,6 +11,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -19,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.Map;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -196,6 +199,49 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
     public void deleteSelectedData(String bookID, long createdAt) {
         jdao.deleteProgressData(bookID, createdAt);
     }
+
+    /**
+     * 進捗データのページ数の更新。（オーバーロード）
+     * 2つ目の引数にString columnNameを受け取る。
+     * 
+     * @param bookID
+     * @param columnName
+     * @param editedDataObject
+     */
+	public void updateData(String bookID, String columnName, Long createdAtLong, Object editedDataObject) {
+		String editedData = (String) editedDataObject;
+        editedData = convertToHalfWidth(editedData);
+        jdao.editDateAtProgressDataTableFromCalendar(bookID, columnName, createdAtLong, editedData);
+
+	}
+    /**
+     * 進捗データの日付の更新。（オーバーロード）
+     * 2つ目の引数にLong createdAtLongを受け取る。
+     * 
+     * @param bookID
+     * @param createdAtLong
+     * @param editedDataObject
+     */
+	public void updateData(String bookID, Long createdAtLong, Object editedDataObject) {
+		String editedData = (String) editedDataObject;
+        jdao.editDateAtProgressDataTableFromCalendar(bookID, createdAtLong, editedData);
+        
+	}
+
+	private String convertToHalfWidth(String fullwidthNumber) {
+		try {
+			// 日本のロケールに基づくNumberFormatを取得
+			NumberFormat format = NumberFormat.getInstance(Locale.JAPAN);
+
+			// parseメソッドを使用して文字列をNumberに変換し、そのままStringに変換して返す
+			return format.parse(fullwidthNumber).toString();
+		} catch (ParseException e) {
+			// パースに失敗した場合のエラー処理
+			e.printStackTrace();
+			System.out.println("数字を全角から半角に変換できませんでした。");
+			return fullwidthNumber; // デフォルト値を返すか、適切な処理を行う
+		}
+	}
 
     /*
      * setText Label, Button
