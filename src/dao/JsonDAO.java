@@ -34,8 +34,6 @@ public class JsonDAO {
     ArrayNode arraybookShelfNode;
     ArrayNode arrayProgressDataNode;
     JsonNode checkNode;
-    int counter = 0;
-    int failedCounter = 0;
     /*
      * JsonDAOクラスの新しいインスタンスを生成します。
      * ファイルパスを設定し、ObjectMapperで読み込み、JsonNodeに変換します。
@@ -74,17 +72,11 @@ public class JsonDAO {
      * @return 指定された書籍IDに関連する進捗データノード
      */
     public JsonNode getProgressDataNode(String bookID) {
-
         for (JsonNode bookNode : bookShelfNode) {
             String tempID = bookNode.get("ID").asText();
             if (tempID.equals(bookID)) {
                 progressDataNode = bookNode.get("進捗データ");
-                //counter++;
-                System.out.println("Success: " + ++counter);
                 return progressDataNode;
-            } else {
-                //failedCounter++;
-                System.out.println("failed : " + ++failedCounter);
             }
         }
         return mapper.createObjectNode();
@@ -179,55 +171,73 @@ public class JsonDAO {
         writeToJsonFile(node);
     }
 
+    /**
+     * 現在時刻を取得
+     * 
+     * @return フォーマットされていない現在時刻
+     */
     public String getCurrentDate() {
-              // 現在時刻を取得
         DateTimeFormatter ISO8601 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
         String createdAt = ZonedDateTime.now(ZoneId.of("Asia/Tokyo")).format(ISO8601);
 
         return createdAt;
     }
+
+    
+    public void editDateAtProgressDataTableFromCalendar(String bookID, String columnName, Long createdAtLong, String editedData) {
+        arrayProgressDataNode = (ArrayNode) getProgressDataNode(bookID);
+
+        for (JsonNode PDnode : arrayProgressDataNode) {
+            String createdAtString = PDnode.get("created_at").asText();
+            Instant createdAtInstant = Instant.parse(createdAtString);
+            long originalCreatedAt = createdAtInstant.toEpochMilli();
+            
+            String createdAt = getCurrentDate(); 
+
+            // 更新したい本のノードを見つけたらタイトルを書き換える
+            if (originalCreatedAt == createdAtLong) {
+                // 編集されたカラムが"ページ数"だった場合
+                if (columnName.equals("ページ数")) {
+                    columnName = "読んだページ数";
+                    // editDataをintに変換
+                    int editedDataInt = Integer.parseInt(editedData);
+                    ((ObjectNode) PDnode).put(columnName, editedDataInt);
+
+                } else {
+                    ((ObjectNode) PDnode).put(columnName, editedData);
+                }
+                ((ObjectNode) PDnode).put("created_at", createdAt);
+            }
+        }
+        writeToJsonFile(node);
+    }
+    
     /**
      * カレンダーから日付を編集して進捗データを更新します。
      * 
      * @param bookID     書籍ID
      * @param editedData 編集後の日付データ
      */
-    // public void editProgressDataFromCalendar(String bookID, String editedData) {
-    //     progressDataNode = getProgressDataNode(bookID);
+    // public void editDateAtProgressDataTableFromCalendar(String bookID, Long createdAtLong, String editedData) {
+        
+    //     this.bookShelfNode = node.get("本棚");
+    //     arrayProgressDataNode = (ArrayNode) getProgressDataNode(bookID);
 
-    //     for (JsonNode dateNode : progressDataNode) {
-    //         String tempID = dateNode.get("ID").asText();
+    //     for (JsonNode PDnode : arrayProgressDataNode) {
+    //         String createdAtString = PDnode.get("created_at").asText();
+    //         Instant createdAtInstant = Instant.parse(createdAtString);
+    //         long originalCreatedAt = createdAtInstant.toEpochMilli();
+            
+    //         String createdAt = getCurrentDate(); 
 
     //         // 更新したい本のノードを見つけたらタイトルを書き換える
-    //         if (tempID.equals(bookID)) {
-    //             ((ObjectNode) dateNode).put("日付", editedData);
-    //             ((ObjectNode) dateNode).put("created_at", editedData);
-    //             break;
+    //         if (originalCreatedAt == createdAtLong) {
+    //             ((ObjectNode) PDnode).put("日付", editedData);
+    //             ((ObjectNode) PDnode).put("created_at", createdAt);
     //         }
     //     }
     //     writeToJsonFile(node);
     // }
-    public void editProgressDataFromCalendar(String bookID, Long createdAtLong, String editedData) {
-        arrayProgressDataNode = (ArrayNode) getProgressDataNode(bookID);
-
-        for (JsonNode PDNode : arrayProgressDataNode) {
-            String createdAtString = PDNode.get("created_at").asText();
-            Instant createdAtInstant = Instant.parse(createdAtString);
-            long originalCreatedAt = createdAtInstant.toEpochMilli();
-            System.out.println("編集前 : " + originalCreatedAt);
-            System.out.println("編集後 : " + createdAtLong);
-
-            String createdAt = getCurrentDate(); 
-            if (originalCreatedAt == createdAtLong) {
-                
-                // 更新したい本のノードを見つけたらタイトルを書き換える
-                ((ObjectNode) PDNode).put("日付", editedData);
-                ((ObjectNode) PDNode).put("created_at", createdAt);
-            }
-        }
-        writeToJsonFile(node);
-    }
-
 
     /**
      * ManageFrameの本棚の編集。
@@ -262,7 +272,7 @@ public class JsonDAO {
      */
     private String updatedMessage(String columnName) {
         return switch (columnName) {
-            case "タイトル" -> "タイトルが変更されました。";
+            case "タイトル" -> "タイトルが変更されました";
             case "著者" -> "著者名が変更されました";
             case "ジャンル" -> "ジャンル名が変更されました";
             case "ページ数" -> "ページ数が変更されました";
