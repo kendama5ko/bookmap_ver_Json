@@ -177,7 +177,7 @@ public class CalendarDialog {
 
     public void openCalendarSetting() {
         progressDataTable.addMouseListener(new MouseAdapter() {
-            public void mouseReleased(MouseEvent e) {
+            public void mousePressed(MouseEvent e) {
                 int selectedColumn = progressDataTable.columnAtPoint(e.getPoint());
 
                 // カラム1がクリックされたときだけ処理を実行
@@ -202,6 +202,7 @@ public class CalendarDialog {
                     }
                     dialog.setLocation(dialogX, dialogY);
                     dialog.setVisible(true);
+                    
                 } else if (selectedColumn != 1) {
                     dialog.dispose();
                 }
