@@ -202,21 +202,21 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
 
     /**
      * 進捗データのページ数の更新。（オーバーロード）
-     * String columnNameを受け取る。
+     * 2つ目の引数にString columnNameを受け取る。
      * 
      * @param bookID
      * @param columnName
      * @param editedDataObject
      */
-	public void updateData(String bookID, String columnName, Object editedDataObject) {
+	public void updateData(String bookID, String columnName, Long createdAtLong, Object editedDataObject) {
 		String editedData = (String) editedDataObject;
         editedData = convertToHalfWidth(editedData);
-        
+        jdao.editDateAtProgressDataTableFromCalendar(bookID, columnName, createdAtLong, editedData);
 
 	}
     /**
      * 進捗データの日付の更新。（オーバーロード）
-     * Long createdAtLongを受け取る。
+     * 2つ目の引数にLong createdAtLongを受け取る。
      * 
      * @param bookID
      * @param createdAtLong
@@ -224,7 +224,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
      */
 	public void updateData(String bookID, Long createdAtLong, Object editedDataObject) {
 		String editedData = (String) editedDataObject;
-        jdao.editProgressDataFromCalendar(bookID, createdAtLong, editedData);
+        jdao.editDateAtProgressDataTableFromCalendar(bookID, createdAtLong, editedData);
         
 	}
 
