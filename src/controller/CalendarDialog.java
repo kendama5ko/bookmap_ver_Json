@@ -110,7 +110,7 @@ public class CalendarDialog {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                // イベントリスナーを一時的に削除
+                // イベントリスナーを一時的に削除（setDateによりonDateSelectedの中で設定したgetDayChooser()が処理呼び出されるため）
                 PropertyChangeListener[] listeners = calendar.getDayChooser().getPropertyChangeListeners();
                 for (PropertyChangeListener listener : listeners) {
                     calendar.getDayChooser().removePropertyChangeListener(listener);
@@ -129,8 +129,8 @@ public class CalendarDialog {
                     editingLabel.setText("日付を選択");
                     editingLabel.setHorizontalAlignment(JLabel.CENTER);
                     return editingLabel;
-                    // 編集中でない場合は何も表示しない
                 } else {
+                    // 編集中でない場合は何も表示しない
                     return null;
                 }
             }
@@ -153,14 +153,14 @@ public class CalendarDialog {
             @Override
             public boolean stopCellEditing() {
                 saveDialogPosition();
-                dialog.dispose(); // ダイアログを閉じる
-                progressDataTable.removeEditor();
+                //dialog.dispose(); // ダイアログを閉じる
+                progressDataTable.removeEditor();   //編集状態を終わらせないとJLabelが残り、文字が重なってしまう
                 return true;
             }
 
             @Override
             public void cancelCellEditing() {
-                dialog.dispose(); // ダイアログを閉じる
+                //dialog.dispose(); // ダイアログを閉じる
             }
 
             @Override
@@ -205,7 +205,9 @@ public class CalendarDialog {
                     
                 } else if (selectedColumn != 1) {
                     dialog.dispose();
-                }
+                } 
+                // セルエディターを開始
+                progressDataTable.editCellAt(progressDataTable.getSelectedRow(), selectedColumn);
             }
         });
     }
