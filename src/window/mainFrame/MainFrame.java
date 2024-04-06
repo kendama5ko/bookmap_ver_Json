@@ -188,22 +188,48 @@ public class MainFrame extends Window {
 		progressModel.addColumn("日付");
 		progressModel.addColumn("ID");
 		progressModel = mfc.reloadProgressModel(bookID, progressModel);
+		copyProgressModel = new DefaultTableModel();
+		copyProgressModel.addColumn("ページ数");
+		copyProgressModel.addColumn("日付");
+		copyProgressModel.addColumn("日付");
+		copyProgressModel.addColumn("ID");
+		copyProgressModel = mfc.reloadProgressModel(bookID, copyProgressModel);		//更新されたかのチェック用
 		progressModel.addTableModelListener(new TableModelListener() {
 			
+			//TODO カラム0は数字のみ入力可能にする（全角は許容しても良い）
 			@Override
 			public void tableChanged(TableModelEvent e) {
 				if (e.getType() == TableModelEvent.UPDATE) {
+					// 更新されたセルのrowとcolumnを取得
 					int row = e.getFirstRow();
 					int column = e.getColumn();
+
+					// 入力されたデータ(progressModel)と元のデータ(copyProgressModel)を取得
 					Object editedDataObject = progressModel.getValueAt(row, column);
+					Object oldDataObject = copyProgressModel.getValueAt(row, column);
+
+					// 更新するカラム名と更新する行に応じたcreatedAt（一意となる主キー）を取得
 					String columnName = progressModel.getColumnName(column);
 					Long createdAtLong = (Long) progressModel.getValueAt(row, 2);
-					
-					if (columnName.equals("ページ数")) {
-						mfc.updateData(bookID, columnName, editedDataObject);
-					} else if (columnName.equals("日付")) {
-						mfc.updateData(bookID, createdAtLong, editedDataObject);
+
+					if (columnName.equals("ページ数")) { // ページ数カラム
+						// 比較するためにデータをintに変換し、ページ数が変更された場合にのみ更新する
+						int editedDataInt = Integer.parseInt((String)editedDataObject);
+						int oldDataInt = (int)oldDataObject;
+						
+						// これをしなければ、選択するたびにデータが更新され、createdAtを変更してしまう
+						if (editedDataInt != oldDataInt) {
+							mfc.updateData(bookID, columnName, createdAtLong, editedDataObject);
+						}
+					} else if (columnName.equals("日付")) { // 日付カラム
+						mfc.updateData(bookID, columnName, createdAtLong, editedDataObject);
 					}
+					
+					// if (columnName.equals("ページ数")) {
+					// 	mfc.updateData(bookID, columnName, createdAtLong, editedDataObject);
+					// } else if (columnName.equals("日付")) {
+					// 	mfc.updateData(bookID, createdAtLong, editedDataObject);
+					// }
 					updateText(bookID);
 				}
 			}
@@ -217,6 +243,7 @@ public class MainFrame extends Window {
 			}
 		};
 		progressDataTable = mfc.progressDataTableSettings(progressDataTable);
+		mfc.inputOnlyNumbers(progressDataTable, 0);
 
 		// progressDataTable.getTableHeader().setFont(mainFont);
 		JTableHeader progressDataHeader = progressDataTable.getTableHeader(); // changeFontでフォントを一括で変更するため
@@ -516,6 +543,7 @@ public class MainFrame extends Window {
 		atThisPaceLabel.setText(mfc.setAtThisPaceLabel(bookID));
 		totalDaysAnsLabel.setText("読んだ日数  " + mfc.getTotalDays(bookID) + "日");
 		progressModel = mfc.reloadProgressModel(bookID, progressModel);
+		copyProgressModel = mfc.reloadProgressModel(bookID, copyProgressModel);
 		progressBar.setValue(mfc.setProgress(bookID));
 		progressLabel.setText(mfc.setProgressLabel(bookID));
 		panel.repaint();
