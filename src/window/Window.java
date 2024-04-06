@@ -49,6 +49,7 @@ public abstract class Window {
 	protected JProgressBar progressBar;
 	protected JScrollPane scrollPane;
 	protected DefaultTableModel progressModel;
+	protected DefaultTableModel copyProgressModel;
 	protected DefaultComboBoxModel<BookInfo> comboModel;
 	protected JComboBox<BookInfo> bookShelfCombo = new JComboBox<BookInfo>();
 	protected int userId;

@@ -212,7 +212,7 @@ public class MainFrame extends Window {
 					String columnName = progressModel.getColumnName(column);
 					Long createdAtLong = (Long) progressModel.getValueAt(row, 2);
 
-					if (columnName.equals("ページ数")) { // ページ数カラム
+					if (columnName.equals("ページ数")) {
 						// 比較するためにデータをintに変換し、ページ数が変更された場合にのみ更新する
 						int editedDataInt = Integer.parseInt((String)editedDataObject);
 						int oldDataInt = (int)oldDataObject;
@@ -221,15 +221,9 @@ public class MainFrame extends Window {
 						if (editedDataInt != oldDataInt) {
 							mfc.updateData(bookID, columnName, createdAtLong, editedDataObject);
 						}
-					} else if (columnName.equals("日付")) { // 日付カラム
+					} else if (columnName.equals("日付")) {
 						mfc.updateData(bookID, columnName, createdAtLong, editedDataObject);
 					}
-					
-					// if (columnName.equals("ページ数")) {
-					// 	mfc.updateData(bookID, columnName, createdAtLong, editedDataObject);
-					// } else if (columnName.equals("日付")) {
-					// 	mfc.updateData(bookID, createdAtLong, editedDataObject);
-					// }
 					updateText(bookID);
 				}
 			}
