@@ -183,17 +183,17 @@ public class MainFrame extends Window {
 		 * 進捗テーブル
 		 */
 		progressModel = new DefaultTableModel();
-		progressModel.addColumn("ページ数");
-		progressModel.addColumn("日付");
-		progressModel.addColumn("日付");
-		progressModel.addColumn("ID");
-		progressModel = mfc.reloadProgressModel(bookID, progressModel);
 		copyProgressModel = new DefaultTableModel();
-		copyProgressModel.addColumn("ページ数");
-		copyProgressModel.addColumn("日付");
-		copyProgressModel.addColumn("日付");
-		copyProgressModel.addColumn("ID");
+		
+		// modelにカラムを名前と共に追加
+		String[] columnNameList = {"ページ数", "日付", "日付", "ID"};
+		addColumn(copyProgressModel, columnNameList);
+		addColumn(progressModel, columnNameList);
+
+		// modelにデータを入れる
+		progressModel = mfc.reloadProgressModel(bookID, progressModel);
 		copyProgressModel = mfc.reloadProgressModel(bookID, copyProgressModel);		//更新されたかのチェック用
+		
 		progressModel.addTableModelListener(new TableModelListener() {
 			
 			//TODO カラム0は数字のみ入力可能にする（全角は許容しても良い）
