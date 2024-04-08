@@ -126,4 +126,10 @@ public abstract class Window {
 			bookShelfCombo.setSelectedItem(null);
 		}
 	}
+	
+	public void addColumn(DefaultTableModel model, String[] columnNameList) {
+		for (String columnName : columnNameList) {
+			model.addColumn(columnName);
+		}
+	}
 }

@@ -5,7 +5,7 @@
 
 
 ## 紹介
-このアプリのウィンドウは以下の2つだけです。
+このアプリのウィンドウは以下の2つです。
 ### 選択された本の情報を表示（メイン画面）
 ![MainWindow](https://github.com/kendama5ko/bookmap/assets/146686157/749f2619-3910-4610-88ab-d5ac95a59bbb)
 <br>

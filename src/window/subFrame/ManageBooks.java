@@ -33,7 +33,7 @@ import javax.swing.table.TableColumn;
 import controller.ManageBooksController;
 import window.Window;
 
-public class ManageBooks {
+public class ManageBooks extends Window{
 	private final JFrame manageFrame;
 	private DefaultTableModel booksModel;
 
@@ -83,12 +83,15 @@ public class ManageBooks {
 		 * Table
 		 */
 
-		// modelにカラムを追加しDAOから受け取ったデータを入れる
 		booksModel = new DefaultTableModel();
 		copyOfBooksModel = new DefaultTableModel(); // 変更がなければSQLを発行しないようにするためのデータ比較用
-		addColumn(booksModel);
-		addColumn(copyOfBooksModel);
+		
+		// modelにカラムを名前と共に追加
+		String[] columnNameList = {"タイトル", "著者", "ジャンル", "ページ数", "ID"};
+		addColumn(booksModel, columnNameList);
+		addColumn(copyOfBooksModel, columnNameList);
 
+		// DAOから受け取ったデータを入れる
 		booksModel = mbController.getBookShelfModel(booksModel);
 		copyOfBooksModel = mbController.getBookShelfModel(copyOfBooksModel);
 
@@ -364,14 +367,6 @@ public class ManageBooks {
 		bookIdColumn.setPreferredWidth(0);
 	}
 
-	public void addColumn(DefaultTableModel model) {
-		model.addColumn("タイトル");
-		model.addColumn("著者");
-		model.addColumn("ジャンル");
-		model.addColumn("ページ数");
-		model.addColumn("ID");
-	}
-
 	public boolean numberVaridator(String totalPagesText) {
 		boolean check = false;
 		if (totalPagesText.matches("[0-9０-９]*") && totalPagesText.length() <= 5 && !totalPagesText.isEmpty()) {
@@ -409,5 +404,17 @@ public class ManageBooks {
 
 	public void run() {
 		this.manageFrame.setVisible(true);
+	}
+
+	@Override
+	protected void stop() {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'stop'");
+	}
+
+	@Override
+	public void updateText(String bookTitle) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'updateText'");
 	}
 }
