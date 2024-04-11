@@ -5,6 +5,7 @@ import javax.swing.JTable;
 import javax.swing.JFormattedTextField;
 import java.text.NumberFormat;
 
+
 public class BaseController  {
 
     public void inputOnlyNumbers(JTable table, int columnIndex) {
