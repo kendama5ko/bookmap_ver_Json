@@ -15,7 +15,7 @@
 ![manageBooks](https://github.com/kendama5ko/bookmap_ver_Json/assets/146686157/2a5c4988-185c-4d77-b41b-2f1567d6b112)
 
 ## 使い方
-![bookmapDiscription](https://github.com/kendama5ko/bookmap_ver_Json/assets/146686157/9a4cc4da-e0d5-439c-8aac-15524e94ba69)
+![bookmapDiscription](https://github.com/kendama5ko/bookmap_ver_Json/assets/146686157/bec4234e-aebf-43eb-afdb-fa9a8d262bc8)
 
 ### 本の追加方法
 ①管理ボタンを押す  
