@@ -207,7 +207,9 @@ public class CalendarDialog {
                     dialog.dispose();
                 } 
                 // セルエディターを開始
+                if (selectedColumn == 1) {
                 progressDataTable.editCellAt(progressDataTable.getSelectedRow(), selectedColumn);
+                }
             }
         });
     }
