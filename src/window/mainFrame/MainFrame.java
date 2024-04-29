@@ -213,9 +213,16 @@ public class MainFrame extends Window {
 					Long createdAtLong = (Long) progressModel.getValueAt(row, 2);
 
 					if (columnName.equals("ページ数")) {
+						// 数字以外が入力された場合に、文字を削除するためにreplaceAllで数字以外を削除
+						String prepareRemove = (String)editedDataObject;
+						String removeString = prepareRemove.replaceAll("[^\\d]", "");
+
 						// 比較するためにデータをintに変換し、ページ数が変更された場合にのみ更新する
-						int editedDataInt = Integer.parseInt((String)editedDataObject);
+						int editedDataInt = Integer.parseInt(removeString);
 						int oldDataInt = (int)oldDataObject;
+
+						// 数字のみになったデータをObjectに変換しupdateDataに渡す
+						editedDataObject = (Object)removeString;
 						
 						// これをしなければ、選択するたびにデータが更新され、createdAtを変更してしまう
 						if (editedDataInt != oldDataInt) {
