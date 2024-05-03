@@ -42,7 +42,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dao.JsonDAO;
 import window.mainFrame.BookInfo;
 
-public class MainFrameController extends DefaultComboBoxModel<String> {
+public class MainFrameController extends BaseController{
 
     Properties properties;
     File dataFile;
@@ -72,7 +72,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
 
         String lastBookID = properties.getProperty("lastBookID");
         String lastBookTitle = properties.getProperty("lastBookTitle");
-        String[] lastBookInfo = {lastBookID, lastBookTitle};
+        String[] lastBookInfo = { lastBookID, lastBookTitle };
 
         return lastBookInfo;
     }
@@ -104,12 +104,12 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
             i++;
         }
         comboModel = new DefaultComboBoxModel<>();
-        
+
         comboModel.removeAllElements();
         for (BookInfo bookTitle : bookTitleList) {
             comboModel.addElement(bookTitle);
         }
-        
+
         // int newIndexStart = 0; // 新しい要素の最初のインデックス
         // int newIndexEnd = bookInfoList.size() - 1; // 新しい要素の最後のインデックス
 
@@ -129,8 +129,8 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
             // Long rowNumber1 = (Long) o1.get(2); //created_atはcolumn3なのでindex2を指定
             // Long rowNumber2 = (Long) o2.get(2);
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy MM/dd");
-            String dateString1 = (String)o1.get(1);
-            String dateString2 = (String)o2.get(1);
+            String dateString1 = (String) o1.get(1);
+            String dateString2 = (String) o2.get(1);
             LocalDate date1 = LocalDate.parse(dateString1, formatter);
             LocalDate date2 = LocalDate.parse(dateString2, formatter);
             return date2.compareTo(date1);
@@ -143,7 +143,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         progressDataTable.setForeground(new Color(15, 15, 15));
 
         progressDataTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		progressDataTable.getTableHeader().setReorderingAllowed(false);
+        progressDataTable.getTableHeader().setReorderingAllowed(false);
 
         TableColumn pagesColumn = progressDataTable.getColumnModel().getColumn(0);
         TableColumn dateColumn = progressDataTable.getColumnModel().getColumn(1);
@@ -179,18 +179,18 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
      */
 
     public void addRecentData(String bookID, int todayProgress) {
-        //進捗データが0ページ以下なら処理終了
+        // 進捗データが0ページ以下なら処理終了
         if (todayProgress <= 0) {
             return;
         }
-        
+
         // 現在時刻を取得
         DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy MM/dd");
         DateTimeFormatter ISO8601 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssXXX");
-        
+
         String createdAt = ZonedDateTime.now(ZoneId.of("Asia/Tokyo")).format(ISO8601);
         String currentDate = ZonedDateTime.now(ZoneId.of("Asia/Tokyo")).format(dateFormat);
-        
+
         // 進捗データを追加
         this.jdao = new JsonDAO();
         jdao.addProgressData(bookID, currentDate, todayProgress, createdAt);
@@ -201,58 +201,46 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
     }
 
     /**
-     * 進捗データのページ数の更新。（オーバーロード）
-     * 2つ目の引数にString columnNameを受け取る。
+     * 進捗データのページ数の更新。
+     * ページ数カラムの場合は半角数字に変換
      * 
      * @param bookID
      * @param columnName
      * @param editedDataObject
      */
-	public void updateData(String bookID, String columnName, Long createdAtLong, Object editedDataObject) {
-		String editedData = (String) editedDataObject;
-        editedData = convertToHalfWidth(editedData);
+    public void updateData(String bookID, String columnName, Long createdAtLong, Object editedDataObject) {
+        String editedData = (String) editedDataObject;
+        if (columnName.equals("ページ数")) {
+            editedData = convertToHalfWidth(editedData);
+        }
         jdao.editDateAtProgressDataTableFromCalendar(bookID, columnName, createdAtLong, editedData);
+    }
 
-	}
-    /**
-     * 進捗データの日付の更新。（オーバーロード）
-     * 2つ目の引数にLong createdAtLongを受け取る。
-     * 
-     * @param bookID
-     * @param createdAtLong
-     * @param editedDataObject
-     */
-	public void updateData(String bookID, Long createdAtLong, Object editedDataObject) {
-		String editedData = (String) editedDataObject;
-        jdao.editDateAtProgressDataTableFromCalendar(bookID, createdAtLong, editedData);
-        
-	}
+    private String convertToHalfWidth(String fullwidthNumber) {
+        try {
+            // 日本のロケールに基づくNumberFormatを取得
+            NumberFormat format = NumberFormat.getInstance(Locale.JAPAN);
 
-	private String convertToHalfWidth(String fullwidthNumber) {
-		try {
-			// 日本のロケールに基づくNumberFormatを取得
-			NumberFormat format = NumberFormat.getInstance(Locale.JAPAN);
-
-			// parseメソッドを使用して文字列をNumberに変換し、そのままStringに変換して返す
-			return format.parse(fullwidthNumber).toString();
-		} catch (ParseException e) {
-			// パースに失敗した場合のエラー処理
-			e.printStackTrace();
-			System.out.println("数字を全角から半角に変換できませんでした。");
-			return fullwidthNumber; // デフォルト値を返すか、適切な処理を行う
-		}
-	}
+            // parseメソッドを使用して文字列をNumberに変換し、そのままStringに変換して返す
+            return format.parse(fullwidthNumber).toString();
+        } catch (ParseException e) {
+            // パースに失敗した場合のエラー処理
+            e.printStackTrace();
+            System.out.println("数字を全角から半角に変換できませんでした。");
+            return fullwidthNumber; // デフォルト値を返すか、適切な処理を行う
+        }
+    }
 
     /*
      * setText Label, Button
      */
-    public void setGridPosition(GridBagConstraints gbc, int x, int y, double weightx, double weighty)  {
+    public void setGridPosition(GridBagConstraints gbc, int x, int y, double weightx, double weighty) {
         gbc.gridx = x;
-		gbc.gridy = y;
-		gbc.weightx = weightx;
+        gbc.gridy = y;
+        gbc.weightx = weightx;
         gbc.weighty = weighty;
     }
-    
+
     public String setRemainPageLabel(String bookID) {
         this.jdao = new JsonDAO();
         int currentPages = jdao.getCurrentPages(bookID);
@@ -289,7 +277,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
             return currentPages / totalDays;
         }
     }
-    
+
     public String setAvgPagesLabel(String bookID) {
         int avgPages = getAvgPages(bookID);
 
@@ -310,8 +298,8 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         } else if (totalPages / avgPages < 2) {
             return "<html>あと <font size='6'> 1</font>日</html>";
         } else {
-            return  "<html>あと <font size='6'>" 
-                    +(int) Math.ceil((double)totalPages / avgPages) + "</font>日</html>";
+            return "<html>あと <font size='6'>"
+                    + (int) Math.ceil((double) totalPages / avgPages) + "</font>日</html>";
         }
     }
 
@@ -338,7 +326,7 @@ public class MainFrameController extends DefaultComboBoxModel<String> {
         label.setIconTextGap(gap);
         return label;
     }
-    
+
     public JLabel setOriginalIcon(JLabel label, ImageIcon icon, int width, int height) {
         Image image = icon.getImage();
         Image resizedImage = image.getScaledInstance(width, height, Image.SCALE_SMOOTH);
