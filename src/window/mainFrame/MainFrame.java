@@ -215,18 +215,22 @@ public class MainFrame extends Window {
 					if (columnName.equals("ページ数")) {
 						// 数字以外が入力された場合に、文字を削除するためにreplaceAllで数字以外を削除
 						String prepareRemove = (String)editedDataObject;
-						String removeString = prepareRemove.replaceAll("[^\\d]", "");
+						String removeString = prepareRemove.replaceAll("[^\\d０-９]", "");
 
-						// 比較するためにデータをintに変換し、ページ数が変更された場合にのみ更新する
-						int editedDataInt = Integer.parseInt(removeString);
-						int oldDataInt = (int)oldDataObject;
-
-						// 数字のみになったデータをObjectに変換しupdateDataに渡す
-						editedDataObject = (Object)removeString;
-						
-						// これをしなければ、選択するたびにデータが更新され、createdAtを変更してしまう
-						if (editedDataInt != oldDataInt) {
-							mfc.updateData(bookID, columnName, createdAtLong, editedDataObject);
+						if (removeString.length() < 6) {
+							// 比較するためにデータをintに変換し、ページ数が変更された場合にのみ更新する
+							int editedDataInt = Integer.parseInt(removeString);
+							int oldDataInt = (int)oldDataObject;
+							
+							// 数字のみになったデータをObjectに変換しupdateDataに渡す
+							editedDataObject = (Object)removeString;
+							
+							// これをしなければ、選択するたびにデータが更新され、createdAtを変更してしまう
+							if (editedDataInt != oldDataInt) {
+								mfc.updateData(bookID, columnName, createdAtLong, editedDataObject);
+							}
+						} else {
+							System.out.println("ページ数の値は5桁以内でお願いします。");
 						}
 					} else if (columnName.equals("日付")) {
 						mfc.updateData(bookID, columnName, createdAtLong, editedDataObject);
@@ -255,14 +259,7 @@ public class MainFrame extends Window {
 		scrollPane.setBackground(new Color(225, 238, 251));
 		
 
-		/*
-		 * カレンダーの表示に関する設定
-		 */
-		calendarDialog = new CalendarDialog(progressDataTable);
-		calendarDialog.onDateSelected(progressModel);
-		calendarDialog.onDateColumnSelected();
-		calendarDialog.openCalendarSetting();
-
+		
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		mfc.setGridPosition(gbc_scrollPane, 2, 2, 1.0, 1.0);
 		gbc_scrollPane.insets = new Insets(0, 10, 5, 5);
@@ -270,6 +267,14 @@ public class MainFrame extends Window {
 		gbc_scrollPane.gridheight = 2;
 		gbc_scrollPane.gridwidth = 2;
 		panel.add(scrollPane, gbc_scrollPane);
+		
+		/*
+		 * カレンダーの表示に関する設定
+		 */
+		calendarDialog = new CalendarDialog(progressDataTable);
+		calendarDialog.onDateSelected(progressModel);
+		calendarDialog.onDateColumnSelected();
+		calendarDialog.openCalendarSetting();
 
 		/*
 		 * 進捗度
