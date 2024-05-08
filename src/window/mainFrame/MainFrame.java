@@ -180,6 +180,27 @@ public class MainFrame extends Window {
 		getP.add(panel, BorderLayout.CENTER);
 
 		/*
+		 * 注意メッセージラベル
+		 */
+		JLabel announceMessageLabel = new JLabel("進捗");
+		announceMessageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		announceMessageLabel.setHorizontalTextPosition(JLabel.CENTER);
+		announceMessageLabel.setOpaque(true);
+		announceMessageLabel.setBackground(new Color(235, 245, 255));
+		announceMessageLabel.setForeground(new Color(40, 40, 40));
+		announceMessageLabel.setFont(new Font("メイリオ", Font.PLAIN, 12));
+
+		GridBagConstraints gbc_announceMessageLabel = new GridBagConstraints();
+		mfc.setGridPosition(gbc_announceMessageLabel, 2, 1, 1.0, 1.0);
+		gbc_announceMessageLabel.insets = new Insets(5, 9, 0, 8);
+		gbc_announceMessageLabel.gridwidth = 2;
+		gbc_announceMessageLabel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_announceMessageLabel.anchor = GridBagConstraints.EAST;
+		panel.add(announceMessageLabel, gbc_announceMessageLabel);
+
+
+
+		/*
 		 * 進捗テーブル
 		 */
 		progressModel = new DefaultTableModel();
