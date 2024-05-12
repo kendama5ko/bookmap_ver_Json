@@ -109,7 +109,7 @@ public class JsonDAO {
      * @param progressModel データをセットするDefaultTableModel
      * @return データがセットされたDefaultTableModel
      */
-    public DefaultTableModel setDataFromJson(String bookID, DefaultTableModel progressModel) {
+    public DefaultTableModel getDataFromJson(String bookID, DefaultTableModel progressModel) {
         progressDataNode = getProgressDataNode(bookID);
         DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
@@ -184,7 +184,7 @@ public class JsonDAO {
     }
 
     
-    public void editDateAtProgressDataTableFromCalendar(String bookID, String columnName, Long createdAtLong, String editedData) {
+    public void setEditedDataToJson(String bookID, String columnName, Long createdAtLong, String editedData) {
         arrayProgressDataNode = (ArrayNode) getProgressDataNode(bookID);
 
         for (JsonNode PDnode : arrayProgressDataNode) {
@@ -203,7 +203,7 @@ public class JsonDAO {
                     int editedDataInt = Integer.parseInt(editedData);
                     ((ObjectNode) PDnode).put(columnName, editedDataInt);
 
-                } else {
+                } else if (columnName.equals("日付")) {
                     ((ObjectNode) PDnode).put(columnName, editedData);
                 }
                 ((ObjectNode) PDnode).put("created_at", createdAt);
@@ -211,7 +211,7 @@ public class JsonDAO {
         }
         writeToJsonFile(node);
     }
-    
+
     /**
      * カレンダーから日付を編集して進捗データを更新します。
      * 

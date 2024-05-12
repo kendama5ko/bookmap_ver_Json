@@ -217,43 +217,33 @@ public class MainFrame extends Window {
 		
 		progressModel.addTableModelListener(new TableModelListener() {
 			
-			//TODO カラム0は数字のみ入力可能にする（全角は許容しても良い）
 			@Override
 			public void tableChanged(TableModelEvent e) {
 				if (e.getType() == TableModelEvent.UPDATE) {
 					// 更新されたセルのrowとcolumnを取得
 					int row = e.getFirstRow();
 					int column = e.getColumn();
-
-					// 入力されたデータ(progressModel)と元のデータ(copyProgressModel)を取得
-					Object editedDataObject = progressModel.getValueAt(row, column);
-					Object oldDataObject = copyProgressModel.getValueAt(row, column);
-
-					// 更新するカラム名と更新する行に応じたcreatedAt（一意となる主キー）を取得
+					
+					// 更新するカラム名と行に応じたcreatedAt（一意となる主キー）を取得
 					String columnName = progressModel.getColumnName(column);
 					Long createdAtLong = (Long) progressModel.getValueAt(row, 2);
 
-					if (columnName.equals("ページ数")) {
-						// 数字以外が入力された場合に、文字を削除するためにreplaceAllで数字以外を削除
-						String prepareRemove = (String)editedDataObject;
-						String removeString = prepareRemove.replaceAll("[^\\d０-９]", "");
+					// 入力されたデータを取得（incetanceはString型）
+					Object editedDataObject = progressModel.getValueAt(row, column);
+					// 入力される前のデータ（カラムによって型は違う）
+					Object oldDataObject = copyProgressModel.getValueAt(row, column);
+					
+					boolean isChanged = false;
+					// 中身がIntegerだった場合editedDataObject(中身はString)と比較することができないのでチェック
+					if (oldDataObject instanceof Integer) {
+						// editedDataObjectをObject→String→Integerに変換し比較
+						isChanged = Integer.parseInt((String)editedDataObject) != (int)oldDataObject ? true : false;
+					} else if (editedDataObject != oldDataObject) {
+						isChanged = true;
+					}
 
-						if (removeString.length() < 6) {
-							// 比較するためにデータをintに変換し、ページ数が変更された場合にのみ更新する
-							int editedDataInt = Integer.parseInt(removeString);
-							int oldDataInt = (int)oldDataObject;
-							
-							// 数字のみになったデータをObjectに変換しupdateDataに渡す
-							editedDataObject = (Object)removeString;
-							
-							// これをしなければ、選択するたびにデータが更新され、createdAtを変更してしまう
-							if (editedDataInt != oldDataInt) {
-								mfc.updateData(bookID, columnName, createdAtLong, editedDataObject);
-							}
-						} else {
-							System.out.println("ページ数の値は5桁以内でお願いします。");
-						}
-					} else if (columnName.equals("日付")) {
+					// データが変更されていれば更新
+					if (isChanged) {
 						mfc.updateData(bookID, columnName, createdAtLong, editedDataObject);
 					}
 					updateText(bookID);
