@@ -42,7 +42,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dao.JsonDAO;
 import window.mainFrame.BookInfo;
 
-public class MainFrameController extends BaseController{
+public class MainFrameController extends BaseController {
 
     Properties properties;
     File dataFile;
@@ -122,7 +122,7 @@ public class MainFrameController extends BaseController{
     public DefaultTableModel reloadProgressModel(String bookID, DefaultTableModel progressModel) {
         this.jdao = new JsonDAO();
         progressModel.setRowCount(0);
-        jdao.setDataFromJson(bookID, progressModel);
+        jdao.getDataFromJson(bookID, progressModel);
 
         // timestampで降順にソート
         Collections.sort(progressModel.getDataVector(), (o1, o2) -> {
@@ -209,12 +209,31 @@ public class MainFrameController extends BaseController{
      * @param editedDataObject
      */
     public void updateData(String bookID, String columnName, Long createdAtLong, Object editedDataObject) {
-        String editedData = (String) editedDataObject;
         if (columnName.equals("ページ数")) {
-            editedData = convertToHalfWidth(editedData);
+            // 数字以外を削除
+            String removeCharacter = convertToOnlyHalfNumbers(editedDataObject);
+            
+            // 桁数チェック
+            boolean isValidDigit = removeCharacter.length() < 6 ? true : false;
+
+            if (isValidDigit) {
+                jdao.setEditedDataToJson(bookID, columnName, createdAtLong, removeCharacter);
+            }
+            
+        } else if (columnName.equals("日付")) {
+            String editedData = (String) editedDataObject;
+            jdao.setEditedDataToJson(bookID, columnName, createdAtLong, editedData);
         }
-        jdao.editDateAtProgressDataTableFromCalendar(bookID, columnName, createdAtLong, editedData);
     }
+
+    public String convertToOnlyHalfNumbers(Object editedDataObject) {
+        // 数字以外が入力された場合に、文字を削除するためにreplaceAllで数字以外を削除
+        String prepareRemove = (String) editedDataObject;
+        String removeCharacter = prepareRemove.replaceAll("[^\\d０-９]", "");
+
+        return removeCharacter;
+    }
+
 
     private String convertToHalfWidth(String fullwidthNumber) {
         try {
