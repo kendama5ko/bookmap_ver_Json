@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.CellEditorListener;
@@ -350,6 +351,23 @@ public class MainFrame extends Window {
 		gbc_rPAnsLabel.fill = GridBagConstraints.HORIZONTAL;
 		gbc_rPAnsLabel.gridwidth = 2;
 		panel.add(remainPagesLabel, gbc_rPAnsLabel);
+
+		/*
+		 * メモ
+		 */
+		JTextArea memo = new JTextArea();
+		memo.setLineWrap(true);
+		// memo.setPreferredSize(new Dimension(100, 100));
+
+		JScrollPane scrollPaneForMemo = new JScrollPane(memo);
+
+		GridBagConstraints gbc_memo = new GridBagConstraints();
+		mfc.setGridPosition(gbc_memo, 0, 4, 1.0, 1.0);
+		gbc_memo.insets = new Insets(0, 7, 0, 0);
+		gbc_memo.anchor = GridBagConstraints.CENTER;
+		gbc_memo.fill = GridBagConstraints.BOTH;
+		gbc_memo.gridheight = 2;
+		panel.add(scrollPaneForMemo, gbc_memo);
 
 		/*
 		 * 平均ページ数アイコン
